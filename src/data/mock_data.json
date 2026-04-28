@@ -1,0 +1,98 @@
+[
+  {
+    "name": "NovaPup",
+    "mint": "8YpJ1x2KqVgQ4bD8zFhLm9nRsT6uW3cAaE7pNq5MZr21",
+    "riskScore": 82,
+    "signals": [
+      { "name": "Liquidity Locked", "triggered": false },
+      { "name": "Mint Authority Active", "triggered": false },
+      { "name": "Top Holder Concentration", "triggered": false },
+      { "name": "Honeypot Pattern", "triggered": false },
+      { "name": "Creator Wallet Dumping", "triggered": true }
+    ]
+  },
+  {
+    "name": "MoonCircuit",
+    "mint": "4FqQ8cLp2nMa9xTxJwBc6HyrV7sDdK3mE91UoPazR4tK",
+    "riskScore": 64,
+    "signals": [
+      { "name": "Liquidity Locked", "triggered": false },
+      { "name": "Mint Authority Active", "triggered": true },
+      { "name": "Top Holder Concentration", "triggered": false },
+      { "name": "Honeypot Pattern", "triggered": false },
+      { "name": "Creator Wallet Dumping", "triggered": true }
+    ]
+  },
+  {
+    "name": "ShieldSOL",
+    "mint": "Cx3vYp8AaMkR6nTq2WzPf4Ld9Bs7GhQe5Uo1JcN92Kva",
+    "riskScore": 91,
+    "signals": [
+      { "name": "Liquidity Locked", "triggered": false },
+      { "name": "Mint Authority Active", "triggered": false },
+      { "name": "Top Holder Concentration", "triggered": false },
+      { "name": "Honeypot Pattern", "triggered": false },
+      { "name": "Creator Wallet Dumping", "triggered": false }
+    ]
+  },
+  {
+    "name": "RugRocket",
+    "mint": "Hf9Bz7QvEt2LkYx4NmcP6RgU1dSa8JwZ5Tq3VsXpKo44",
+    "riskScore": 28,
+    "signals": [
+      { "name": "Liquidity Locked", "triggered": true },
+      { "name": "Mint Authority Active", "triggered": true },
+      { "name": "Top Holder Concentration", "triggered": true },
+      { "name": "Honeypot Pattern", "triggered": false },
+      { "name": "Creator Wallet Dumping", "triggered": true }
+    ]
+  },
+  {
+    "name": "OrbitCat",
+    "mint": "2KxUvF7rSg9QmZnBc4TwLpa6DhYj81NeEoPxV3CkA5Rb",
+    "riskScore": 47,
+    "signals": [
+      { "name": "Liquidity Locked", "triggered": false },
+      { "name": "Mint Authority Active", "triggered": true },
+      { "name": "Top Holder Concentration", "triggered": true },
+      { "name": "Honeypot Pattern", "triggered": false },
+      { "name": "Creator Wallet Dumping", "triggered": false }
+    ]
+  },
+  {
+    "name": "VaultPepe",
+    "mint": "D7YpQe4FzMn8AoT6KxVc3RwLq9BhU2Ns5JgP1ZaXcM77",
+    "riskScore": 73,
+    "signals": [
+      { "name": "Liquidity Locked", "triggered": false },
+      { "name": "Mint Authority Active", "triggered": false },
+      { "name": "Top Holder Concentration", "triggered": true },
+      { "name": "Honeypot Pattern", "triggered": false },
+      { "name": "Creator Wallet Dumping", "triggered": false }
+    ]
+  },
+  {
+    "name": "PhantomYield",
+    "mint": "6PvMaQnU4RzLhC9sXb2KdwYe8TgF1JvNo3AaWp7Em5Q",
+    "riskScore": 35,
+    "signals": [
+      { "name": "Liquidity Locked", "triggered": true },
+      { "name": "Mint Authority Active", "triggered": true },
+      { "name": "Top Holder Concentration", "triggered": false },
+      { "name": "Honeypot Pattern", "triggered": true },
+      { "name": "Creator Wallet Dumping", "triggered": false }
+    ]
+  },
+  {
+    "name": "HelioMint",
+    "mint": "Aa5LrHk2VqW9tYxC3NpF8Mz7DgTb1RsUo4Jc6KneP2Q",
+    "riskScore": 88,
+    "signals": [
+      { "name": "Liquidity Locked", "triggered": false },
+      { "name": "Mint Authority Active", "triggered": false },
+      { "name": "Top Holder Concentration", "triggered": false },
+      { "name": "Honeypot Pattern", "triggered": false },
+      { "name": "Creator Wallet Dumping", "triggered": false }
+    ]
+  }
+]
