@@ -6,6 +6,7 @@ Each event is pushed into a Redis stream for further processing by the scoring e
 
 ---
 
+
 ## Tech Stack
 - Solana RPC
 - Redis (Streams)
@@ -38,3 +39,9 @@ Event format:
   "timestamp": "number",
   "programId": "string"
 }# Rug-Shield---Solana-Ecosystem
+
+# RugShield — Real-Time Risk Intelligence Engine for Solana
+
+Real-time, event-driven risk intelligence engine that evaluates every newly deployed Solana token across 18 on-chain and behavioral signals.
+
+## Architecture
