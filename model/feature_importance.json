@@ -1,0 +1,20 @@
+{
+  "s10_sybil_clusters": 0.25228,
+  "s18_fake_engagement": 0.169167,
+  "s14_bot_spike": 0.124681,
+  "s01_mint_authority": 0.100684,
+  "s03_upgradeable": 0.0947,
+  "s16_insider_dump": 0.079589,
+  "s02_freeze_authority": 0.060384,
+  "s04_metadata_mutable": 0.03639,
+  "s12_wallet_age": 0.032127,
+  "s13_suspicious_tx": 0.016578,
+  "s09_whale_dominance": 0.011572,
+  "s06_deployer_lp": 0.006791,
+  "s05_lp_lock": 0.005605,
+  "s17_social_verify": 0.003397,
+  "s08_top10_holders": 0.003108,
+  "s15_wash_trading": 0.002085,
+  "s11_rug_history": 0.000862,
+  "s07_placeholder": 0.0
+}

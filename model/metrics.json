@@ -1,0 +1,17 @@
+{
+  "accuracy": 1.0,
+  "precision": 1.0,
+  "recall": 1.0,
+  "f1_score": 1.0,
+  "test_size": 100,
+  "confusion_matrix": [
+    [
+      50,
+      0
+    ],
+    [
+      0,
+      50
+    ]
+  ]
+}
