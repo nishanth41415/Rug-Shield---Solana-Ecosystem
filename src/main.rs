@@ -1,15 +1,2 @@
-use axum::{Router, routing::get};
 
-async fn health() -> &'static str {
-    "OK"
-}
-
-#[tokio::main]
-async fn main() {
-    let app = Router::new()
-        .route("/health", get(health));
-
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
-    println!("Server running on http://localhost:3000");
-    axum::serve(listener, app).await.unwrap();
-}
+use axum::{ Router, routing::get, Json, }; use tower_http::cors::{CorsLayer, Any}; use serde_json::json; async fn health() -> &'static str { "OK" } async fn get_score() -> Json<serde_json::Value> { Json(json!({ "mint": "So11111111111111111111111111111111111111112", "score": 75, "riskLevel": "HIGH", "signals": [ {"id": "S01", "name": "Mint Authority", "weight": 15, "triggered": true}, {"id": "S02", "name": "Freeze Authority", "weight": 10, "triggered": false} ] })) } #[tokio::main] async fn main() { let cors = CorsLayer::new() .allow_origin(Any) .allow_methods(Any) .allow_headers(Any); let app = Router::new() .route("/health", get(health)) .route("/score/{mint}", get(get_score)) .layer(cors); let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap(); println!("Server running on http://localhost:3000"); axum::serve(listener, app).await.unwrap(); }
