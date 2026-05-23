@@ -1,0 +1,10 @@
+/mnt/c/Users/User/Desktop/Rug-Shield---Solana-Ecosystem/rugshield-api/target/debug/deps/autocfg-374b6208e55aaac6.d: /home/usernishanth2635/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.5.1/src/lib.rs /home/usernishanth2635/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.5.1/src/error.rs /home/usernishanth2635/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.5.1/src/rustc.rs /home/usernishanth2635/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.5.1/src/version.rs
+
+/mnt/c/Users/User/Desktop/Rug-Shield---Solana-Ecosystem/rugshield-api/target/debug/deps/libautocfg-374b6208e55aaac6.rlib: /home/usernishanth2635/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.5.1/src/lib.rs /home/usernishanth2635/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.5.1/src/error.rs /home/usernishanth2635/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.5.1/src/rustc.rs /home/usernishanth2635/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.5.1/src/version.rs
+
+/mnt/c/Users/User/Desktop/Rug-Shield---Solana-Ecosystem/rugshield-api/target/debug/deps/libautocfg-374b6208e55aaac6.rmeta: /home/usernishanth2635/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.5.1/src/lib.rs /home/usernishanth2635/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.5.1/src/error.rs /home/usernishanth2635/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.5.1/src/rustc.rs /home/usernishanth2635/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.5.1/src/version.rs
+
+/home/usernishanth2635/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.5.1/src/lib.rs:
+/home/usernishanth2635/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.5.1/src/error.rs:
+/home/usernishanth2635/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.5.1/src/rustc.rs:
+/home/usernishanth2635/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.5.1/src/version.rs:
