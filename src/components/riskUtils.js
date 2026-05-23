@@ -3,9 +3,9 @@ const clampScore = (score) => Math.max(0, Math.min(100, Number(score) || 0))
 export const getRiskTone = (score) => {
   const value = clampScore(score)
 
-  if (value >= 70) {
+  if (value <= 30) {
     return {
-      label: 'Low Risk',
+      label: 'Low',
       text: 'text-emerald-300',
       badge: 'bg-emerald-500/15 text-emerald-200 ring-emerald-400/30',
       stroke: '#34d399',
@@ -13,9 +13,9 @@ export const getRiskTone = (score) => {
     }
   }
 
-  if (value >= 40) {
+  if (value <= 70) {
     return {
-      label: 'Watch',
+      label: 'Medium',
       text: 'text-amber-300',
       badge: 'bg-amber-500/15 text-amber-100 ring-amber-400/30',
       stroke: '#fbbf24',
@@ -24,7 +24,7 @@ export const getRiskTone = (score) => {
   }
 
   return {
-    label: 'High Risk',
+    label: 'High',
     text: 'text-rose-300',
     badge: 'bg-rose-500/15 text-rose-100 ring-rose-400/30',
     stroke: '#fb7185',

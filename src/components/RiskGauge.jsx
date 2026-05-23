@@ -33,8 +33,10 @@ function RiskGauge({ score, compact = false }) {
 
   return (
     <div
-      className={`rounded-xl border border-gray-800 bg-gray-950/80 p-6 shadow-lg ${tone.glow}`}
+      className={`relative overflow-hidden rounded-[1.35rem] border border-white/10 bg-[#101720]/82 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.32)] backdrop-blur-xl ${tone.glow}`}
     >
+      <span className="pointer-events-none absolute -right-16 -top-16 h-36 w-36 rounded-full bg-white/6 blur-3xl" />
+      <span className="pointer-events-none absolute bottom-0 left-8 h-px w-44 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
       <div className="relative mx-auto grid place-items-center">
         <svg
           className={compact ? 'h-32 w-32 -rotate-90' : 'h-48 w-48 -rotate-90'}
@@ -63,16 +65,16 @@ function RiskGauge({ score, compact = false }) {
           />
         </svg>
         <div className="absolute text-center">
-          <div className={`text-5xl font-semibold tracking-normal ${tone.text}`}>
+          <div className={`text-6xl font-black leading-none tracking-[-0.03em] ${tone.text}`}>
             {displayScore}
           </div>
-          <div className="mt-1 text-xs font-medium uppercase tracking-[0.2em] text-gray-500">
+          <div className="mt-2 text-[11px] font-bold uppercase tracking-[0.22em] text-gray-500">
             Risk Score
           </div>
         </div>
       </div>
       <div className="mt-5 flex justify-center">
-        <span className={`rounded-full px-3 py-1 text-sm font-semibold ring-1 ${tone.badge}`}>
+        <span className={`rounded-full px-4 py-1.5 text-sm font-bold ring-1 ${tone.badge}`}>
           {tone.label}
         </span>
       </div>

@@ -1,98 +1,1452 @@
 [
   {
-    "name": "NovaPup",
     "mint": "8YpJ1x2KqVgQ4bD8zFhLm9nRsT6uW3cAaE7pNq5MZr21",
-    "riskScore": 82,
+    "name": "Atlas Shield",
+    "symbol": "ATLS",
+    "risk_score": 18,
+    "risk_level": "low",
     "signals": [
-      { "name": "Liquidity Locked", "triggered": false },
-      { "name": "Mint Authority Active", "triggered": false },
-      { "name": "Top Holder Concentration", "triggered": false },
-      { "name": "Honeypot Pattern", "triggered": false },
-      { "name": "Creator Wallet Dumping", "triggered": true }
-    ]
+      {
+        "name": "Mint Authority Active",
+        "weight": 9,
+        "triggered": false
+      },
+      {
+        "name": "Freeze Authority Active",
+        "weight": 7,
+        "triggered": false
+      },
+      {
+        "name": "Liquidity Unlocked",
+        "weight": 10,
+        "triggered": false
+      },
+      {
+        "name": "Low Liquidity Depth",
+        "weight": 6,
+        "triggered": false
+      },
+      {
+        "name": "Top Holder Concentration",
+        "weight": 8,
+        "triggered": false
+      },
+      {
+        "name": "Creator Wallet Concentration",
+        "weight": 7,
+        "triggered": false
+      },
+      {
+        "name": "Recent Creator Dumping",
+        "weight": 8,
+        "triggered": false
+      },
+      {
+        "name": "Suspicious Transfer Pattern",
+        "weight": 6,
+        "triggered": false
+      },
+      {
+        "name": "Honeypot Sell Restriction",
+        "weight": 10,
+        "triggered": false
+      },
+      {
+        "name": "Mutable Metadata",
+        "weight": 4,
+        "triggered": true
+      },
+      {
+        "name": "Unverified Social Links",
+        "weight": 3,
+        "triggered": true
+      },
+      {
+        "name": "Contract Not Audited",
+        "weight": 5,
+        "triggered": false
+      },
+      {
+        "name": "New Token Age",
+        "weight": 5,
+        "triggered": false
+      },
+      {
+        "name": "Abnormal Tax Settings",
+        "weight": 7,
+        "triggered": false
+      },
+      {
+        "name": "Blacklist Function Detected",
+        "weight": 9,
+        "triggered": false
+      },
+      {
+        "name": "Ownership Not Renounced",
+        "weight": 6,
+        "triggered": false
+      },
+      {
+        "name": "Low Trading Volume",
+        "weight": 4,
+        "triggered": false
+      },
+      {
+        "name": "Bot Wash Trading",
+        "weight": 6,
+        "triggered": false
+      }
+    ],
+    "holders": [
+      {
+        "address": "4nTxpV8LqSa13mD7Q9azKq7NdL9PErAv6Ue5rLwW1AXp",
+        "percentage": 12.4
+      },
+      {
+        "address": "9qE5oGd5aA7fzBr81NsTh7sU5xLt3EG44UdVfRT3nQH2",
+        "percentage": 8.1
+      },
+      {
+        "address": "HkYLS92xwf6bt3c2YQsMRHvCmN8bEwJtYsUpP2RbQxZn",
+        "percentage": 6.9
+      },
+      {
+        "address": "6sQwMNe7fQpaSYx1v7g5X24JW8qjdBoVDyN2aP4Kz5uB",
+        "percentage": 5.8
+      },
+      {
+        "address": "2fDLWCr4Yo4N8WFcWv3fm5U7zyyq2mc7FXucXeL2SBiZ",
+        "percentage": 4.7
+      },
+      {
+        "address": "GgUTZkVdS3f9QqQVr1eP3ZuLxn48Np8SAm47WtGMBXgD",
+        "percentage": 3.9
+      },
+      {
+        "address": "Ae88kZLd98Tw2gq9cgAyvGiVqk4CCADADmk77e3cU89y",
+        "percentage": 3.3
+      },
+      {
+        "address": "5J5ejiz9MaBd1KyReTFDn1oebJNo8igMVx7dsg8Mn5Wn",
+        "percentage": 2.9
+      },
+      {
+        "address": "BhzHpGQ9yqv7Ezyv1eWgU1Fg93MGyoDn5HzVmJRya6Ka",
+        "percentage": 2.4
+      },
+      {
+        "address": "7CDGAMuLJ3ogzjsux2HvTjbpF3a7uMDRa3DQan6onE8Q",
+        "percentage": 2.1
+      }
+    ],
+    "logo_url": "https://api.dicebear.com/9.x/shapes/svg?seed=AtlasShield",
+    "price": 1.28,
+    "price_change_24h": 2.34,
+    "volume_24h": 1842000
   },
   {
-    "name": "MoonCircuit",
     "mint": "4FqQ8cLp2nMa9xTxJwBc6HyrV7sDdK3mE91UoPazR4tK",
-    "riskScore": 64,
+    "name": "Moon Circuit",
+    "symbol": "MCR",
+    "risk_score": 44,
+    "risk_level": "medium",
     "signals": [
-      { "name": "Liquidity Locked", "triggered": false },
-      { "name": "Mint Authority Active", "triggered": true },
-      { "name": "Top Holder Concentration", "triggered": false },
-      { "name": "Honeypot Pattern", "triggered": false },
-      { "name": "Creator Wallet Dumping", "triggered": true }
-    ]
+      {
+        "name": "Mint Authority Active",
+        "weight": 9,
+        "triggered": true
+      },
+      {
+        "name": "Freeze Authority Active",
+        "weight": 7,
+        "triggered": false
+      },
+      {
+        "name": "Liquidity Unlocked",
+        "weight": 10,
+        "triggered": false
+      },
+      {
+        "name": "Low Liquidity Depth",
+        "weight": 6,
+        "triggered": true
+      },
+      {
+        "name": "Top Holder Concentration",
+        "weight": 8,
+        "triggered": false
+      },
+      {
+        "name": "Creator Wallet Concentration",
+        "weight": 7,
+        "triggered": false
+      },
+      {
+        "name": "Recent Creator Dumping",
+        "weight": 8,
+        "triggered": false
+      },
+      {
+        "name": "Suspicious Transfer Pattern",
+        "weight": 6,
+        "triggered": true
+      },
+      {
+        "name": "Honeypot Sell Restriction",
+        "weight": 10,
+        "triggered": false
+      },
+      {
+        "name": "Mutable Metadata",
+        "weight": 4,
+        "triggered": true
+      },
+      {
+        "name": "Unverified Social Links",
+        "weight": 3,
+        "triggered": false
+      },
+      {
+        "name": "Contract Not Audited",
+        "weight": 5,
+        "triggered": true
+      },
+      {
+        "name": "New Token Age",
+        "weight": 5,
+        "triggered": true
+      },
+      {
+        "name": "Abnormal Tax Settings",
+        "weight": 7,
+        "triggered": false
+      },
+      {
+        "name": "Blacklist Function Detected",
+        "weight": 9,
+        "triggered": false
+      },
+      {
+        "name": "Ownership Not Renounced",
+        "weight": 6,
+        "triggered": true
+      },
+      {
+        "name": "Low Trading Volume",
+        "weight": 4,
+        "triggered": true
+      },
+      {
+        "name": "Bot Wash Trading",
+        "weight": 6,
+        "triggered": false
+      }
+    ],
+    "holders": [
+      {
+        "address": "BxTkTn33g8mhvMeQv9vLZzC5Vk1EsqfPJtdAX8KrbS3f",
+        "percentage": 19.6
+      },
+      {
+        "address": "Fr2J9Z5h2LSQxS1YKStti6hEUDzhnTUrn1p5MzErmXYu",
+        "percentage": 12.5
+      },
+      {
+        "address": "7myHfHMDPj8fEcTe4ADY32XJGbch65k9oG4b9h7yqk5R",
+        "percentage": 9.7
+      },
+      {
+        "address": "DQY3LjS8EdeJbQRDt84c11rgWXTQz4e67D8BwFFtAQn4",
+        "percentage": 7.2
+      },
+      {
+        "address": "5uEmuSXVdmUBtwYQCLMxiuSTbwu6G3dDwiXvfu2nJ38R",
+        "percentage": 5.5
+      },
+      {
+        "address": "9Mnmvt8RRrZ5c7RQQFjoepFU3SkdJdJpcxeogFaSHLdp",
+        "percentage": 4.6
+      },
+      {
+        "address": "CdbfNL64UQHwqkS6rkh3ugjEL5b3cWrD9e9A3VWPiFUz",
+        "percentage": 3.8
+      },
+      {
+        "address": "6SVTD4twtwrcsq3aQiTkXgBNYZ14CQLQtSkiVkUwdxTc",
+        "percentage": 3.1
+      },
+      {
+        "address": "3NBycNvfsgLYL8zNtTzWrcmnWNtdHrf29oRU7qDwARLw",
+        "percentage": 2.7
+      },
+      {
+        "address": "GZuFQy6h5UFoYfz3X8tMVVkax2d3RvNQEt7paV5d13eV",
+        "percentage": 2.2
+      }
+    ],
+    "logo_url": "https://api.dicebear.com/9.x/shapes/svg?seed=MoonCircuit",
+    "price": 0.043,
+    "price_change_24h": -1.82,
+    "volume_24h": 982000
   },
   {
-    "name": "ShieldSOL",
     "mint": "Cx3vYp8AaMkR6nTq2WzPf4Ld9Bs7GhQe5Uo1JcN92Kva",
-    "riskScore": 91,
+    "name": "Rug Rocket",
+    "symbol": "RROK",
+    "risk_score": 91,
+    "risk_level": "high",
     "signals": [
-      { "name": "Liquidity Locked", "triggered": false },
-      { "name": "Mint Authority Active", "triggered": false },
-      { "name": "Top Holder Concentration", "triggered": false },
-      { "name": "Honeypot Pattern", "triggered": false },
-      { "name": "Creator Wallet Dumping", "triggered": false }
-    ]
+      {
+        "name": "Mint Authority Active",
+        "weight": 9,
+        "triggered": true
+      },
+      {
+        "name": "Freeze Authority Active",
+        "weight": 7,
+        "triggered": true
+      },
+      {
+        "name": "Liquidity Unlocked",
+        "weight": 10,
+        "triggered": true
+      },
+      {
+        "name": "Low Liquidity Depth",
+        "weight": 6,
+        "triggered": true
+      },
+      {
+        "name": "Top Holder Concentration",
+        "weight": 8,
+        "triggered": true
+      },
+      {
+        "name": "Creator Wallet Concentration",
+        "weight": 7,
+        "triggered": true
+      },
+      {
+        "name": "Recent Creator Dumping",
+        "weight": 8,
+        "triggered": true
+      },
+      {
+        "name": "Suspicious Transfer Pattern",
+        "weight": 6,
+        "triggered": true
+      },
+      {
+        "name": "Honeypot Sell Restriction",
+        "weight": 10,
+        "triggered": true
+      },
+      {
+        "name": "Mutable Metadata",
+        "weight": 4,
+        "triggered": true
+      },
+      {
+        "name": "Unverified Social Links",
+        "weight": 3,
+        "triggered": true
+      },
+      {
+        "name": "Contract Not Audited",
+        "weight": 5,
+        "triggered": true
+      },
+      {
+        "name": "New Token Age",
+        "weight": 5,
+        "triggered": true
+      },
+      {
+        "name": "Abnormal Tax Settings",
+        "weight": 7,
+        "triggered": true
+      },
+      {
+        "name": "Blacklist Function Detected",
+        "weight": 9,
+        "triggered": true
+      },
+      {
+        "name": "Ownership Not Renounced",
+        "weight": 6,
+        "triggered": true
+      },
+      {
+        "name": "Low Trading Volume",
+        "weight": 4,
+        "triggered": true
+      },
+      {
+        "name": "Bot Wash Trading",
+        "weight": 6,
+        "triggered": true
+      }
+    ],
+    "holders": [
+      {
+        "address": "73jYcL4hUXAgqWpYHFxwg3KoRBUAfKXnTKMZt59UAsLj",
+        "percentage": 38.9
+      },
+      {
+        "address": "GjFSqXAhB9M9TEETX1b9pUQUGGSRnx2zCx7JfPJe8VqG",
+        "percentage": 18.4
+      },
+      {
+        "address": "DAJpPNL1Y8vJbJuSX5smvUcfY5QCtK3imvtjRtHCTMoB",
+        "percentage": 12.8
+      },
+      {
+        "address": "CzZPhXeUrj4bUiNjYVd9GrHKAN8nr9P2hjTrk7JYfN2B",
+        "percentage": 7.5
+      },
+      {
+        "address": "9ip7o5jagCyrFpQHjp2TfjvrHSgCb1MgFMSYD2dpyPVt",
+        "percentage": 5.1
+      },
+      {
+        "address": "4F7aJwuQ3xLNXTz1VsrWf3PNFYrnhoCT93qJrzRs5LvX",
+        "percentage": 3.6
+      },
+      {
+        "address": "J9q9C6nsUFtGyYs2AQUUZugfk6Q7UNRvwuUb2VuUUx4o",
+        "percentage": 2.9
+      },
+      {
+        "address": "8MQi1hXbDx6EsVg6c2bFRQLvfSYiWYgoZ8j34SFwvFaV",
+        "percentage": 2.3
+      },
+      {
+        "address": "G13K4xCZxX82TtfYuZMuAMmkAQrmqBDkdggsAxSEZxVa",
+        "percentage": 1.8
+      },
+      {
+        "address": "6DHUF81up8biW9jW5uC2ZFnvAoGwsDQWdpAypjCpXW89",
+        "percentage": 1.4
+      }
+    ],
+    "logo_url": "https://api.dicebear.com/9.x/shapes/svg?seed=RugRocket",
+    "price": 0.0067,
+    "price_change_24h": -12.48,
+    "volume_24h": 326000
   },
   {
-    "name": "RugRocket",
     "mint": "Hf9Bz7QvEt2LkYx4NmcP6RgU1dSa8JwZ5Tq3VsXpKo44",
-    "riskScore": 28,
+    "name": "Helio Mint",
+    "symbol": "HLO",
+    "risk_score": 27,
+    "risk_level": "low",
     "signals": [
-      { "name": "Liquidity Locked", "triggered": true },
-      { "name": "Mint Authority Active", "triggered": true },
-      { "name": "Top Holder Concentration", "triggered": true },
-      { "name": "Honeypot Pattern", "triggered": false },
-      { "name": "Creator Wallet Dumping", "triggered": true }
-    ]
+      {
+        "name": "Mint Authority Active",
+        "weight": 9,
+        "triggered": false
+      },
+      {
+        "name": "Freeze Authority Active",
+        "weight": 7,
+        "triggered": false
+      },
+      {
+        "name": "Liquidity Unlocked",
+        "weight": 10,
+        "triggered": false
+      },
+      {
+        "name": "Low Liquidity Depth",
+        "weight": 6,
+        "triggered": false
+      },
+      {
+        "name": "Top Holder Concentration",
+        "weight": 8,
+        "triggered": true
+      },
+      {
+        "name": "Creator Wallet Concentration",
+        "weight": 7,
+        "triggered": false
+      },
+      {
+        "name": "Recent Creator Dumping",
+        "weight": 8,
+        "triggered": false
+      },
+      {
+        "name": "Suspicious Transfer Pattern",
+        "weight": 6,
+        "triggered": false
+      },
+      {
+        "name": "Honeypot Sell Restriction",
+        "weight": 10,
+        "triggered": false
+      },
+      {
+        "name": "Mutable Metadata",
+        "weight": 4,
+        "triggered": true
+      },
+      {
+        "name": "Unverified Social Links",
+        "weight": 3,
+        "triggered": true
+      },
+      {
+        "name": "Contract Not Audited",
+        "weight": 5,
+        "triggered": false
+      },
+      {
+        "name": "New Token Age",
+        "weight": 5,
+        "triggered": false
+      },
+      {
+        "name": "Abnormal Tax Settings",
+        "weight": 7,
+        "triggered": false
+      },
+      {
+        "name": "Blacklist Function Detected",
+        "weight": 9,
+        "triggered": false
+      },
+      {
+        "name": "Ownership Not Renounced",
+        "weight": 6,
+        "triggered": false
+      },
+      {
+        "name": "Low Trading Volume",
+        "weight": 4,
+        "triggered": false
+      },
+      {
+        "name": "Bot Wash Trading",
+        "weight": 6,
+        "triggered": true
+      }
+    ],
+    "holders": [
+      {
+        "address": "2uCbs3P7Qbux7AgXPsJsZcTwv92sL2NDUqkSE7TPxZUd",
+        "percentage": 14.5
+      },
+      {
+        "address": "6Uf9oHt8nJtRD5K6qvR8tjP5UsgVK56YgxETdkZ9AMxR",
+        "percentage": 11.8
+      },
+      {
+        "address": "DwgbMnjL5PgQFV4oLgP2kYBfMzYJgQGqeNF29SHm13yF",
+        "percentage": 7.6
+      },
+      {
+        "address": "ANkNfQjaVdCXkGmk3PfqJQQtpTxFwY1PVvbhw7j9RqBk",
+        "percentage": 6.2
+      },
+      {
+        "address": "HChM2Wf2EimrV96uif8m4vkJmCWcNp6HrQgnbT9ZzCdg",
+        "percentage": 5.4
+      },
+      {
+        "address": "8rFFAd4kVQWrDoM5Mqtvhi5P9Adxvcd49ep1TxoquBxV",
+        "percentage": 4.1
+      },
+      {
+        "address": "ERUJsbVJeGJfxYu2a3thL7rd8twsVwFEPeBgqdvYe96p",
+        "percentage": 3.7
+      },
+      {
+        "address": "9qgPLHBB7CPJFmykic5ER93n5DzHv4mopUPq1LBuSf8U",
+        "percentage": 2.9
+      },
+      {
+        "address": "3Eq8mUNVHH14nMqvKEjC6tGTYdhX8QHAhGboc7Jd4GTo",
+        "percentage": 2.3
+      },
+      {
+        "address": "GtjxtpRfxatNmKc6ZdUsTnecdhHcJpTQg4R7rdppCdJe",
+        "percentage": 1.9
+      }
+    ],
+    "logo_url": "https://api.dicebear.com/9.x/shapes/svg?seed=HelioMint",
+    "price": 3.76,
+    "price_change_24h": 4.91,
+    "volume_24h": 2410000
   },
   {
-    "name": "OrbitCat",
     "mint": "2KxUvF7rSg9QmZnBc4TwLpa6DhYj81NeEoPxV3CkA5Rb",
-    "riskScore": 47,
+    "name": "Phantom Yield",
+    "symbol": "PYLD",
+    "risk_score": 63,
+    "risk_level": "medium",
     "signals": [
-      { "name": "Liquidity Locked", "triggered": false },
-      { "name": "Mint Authority Active", "triggered": true },
-      { "name": "Top Holder Concentration", "triggered": true },
-      { "name": "Honeypot Pattern", "triggered": false },
-      { "name": "Creator Wallet Dumping", "triggered": false }
-    ]
+      {
+        "name": "Mint Authority Active",
+        "weight": 9,
+        "triggered": true
+      },
+      {
+        "name": "Freeze Authority Active",
+        "weight": 7,
+        "triggered": false
+      },
+      {
+        "name": "Liquidity Unlocked",
+        "weight": 10,
+        "triggered": true
+      },
+      {
+        "name": "Low Liquidity Depth",
+        "weight": 6,
+        "triggered": true
+      },
+      {
+        "name": "Top Holder Concentration",
+        "weight": 8,
+        "triggered": true
+      },
+      {
+        "name": "Creator Wallet Concentration",
+        "weight": 7,
+        "triggered": false
+      },
+      {
+        "name": "Recent Creator Dumping",
+        "weight": 8,
+        "triggered": false
+      },
+      {
+        "name": "Suspicious Transfer Pattern",
+        "weight": 6,
+        "triggered": true
+      },
+      {
+        "name": "Honeypot Sell Restriction",
+        "weight": 10,
+        "triggered": false
+      },
+      {
+        "name": "Mutable Metadata",
+        "weight": 4,
+        "triggered": true
+      },
+      {
+        "name": "Unverified Social Links",
+        "weight": 3,
+        "triggered": true
+      },
+      {
+        "name": "Contract Not Audited",
+        "weight": 5,
+        "triggered": true
+      },
+      {
+        "name": "New Token Age",
+        "weight": 5,
+        "triggered": true
+      },
+      {
+        "name": "Abnormal Tax Settings",
+        "weight": 7,
+        "triggered": false
+      },
+      {
+        "name": "Blacklist Function Detected",
+        "weight": 9,
+        "triggered": false
+      },
+      {
+        "name": "Ownership Not Renounced",
+        "weight": 6,
+        "triggered": true
+      },
+      {
+        "name": "Low Trading Volume",
+        "weight": 4,
+        "triggered": true
+      },
+      {
+        "name": "Bot Wash Trading",
+        "weight": 6,
+        "triggered": true
+      }
+    ],
+    "holders": [
+      {
+        "address": "EXYf8q5ayGg9sQwEB7uMBj9ip1XGMPzL13KaikCzSxvJ",
+        "percentage": 24.3
+      },
+      {
+        "address": "Cfbdf67iY6FfNG9weCUaG7W18bth4LAAw9i5ABcCa5bW",
+        "percentage": 16.2
+      },
+      {
+        "address": "GVcKp8xLJUHk4y18ge45RYeqSDbPpM26p3skKeQPkLSz",
+        "percentage": 10.1
+      },
+      {
+        "address": "9MrJ7LHSGokyxbkxYEbpRGxzr9Q1py2WmdDYwLtPhHfd",
+        "percentage": 7.7
+      },
+      {
+        "address": "8YFnYkNcsFUC25gSdQQ8PzKf1Y8Whj3H2p9sWGVjhXBM",
+        "percentage": 5.2
+      },
+      {
+        "address": "GvFd7L8RTvqxG69Gf16x9SdK4E35F2RvhL9g5rrmfqsC",
+        "percentage": 4.9
+      },
+      {
+        "address": "2iLodqJSZ1KSgxDJnMrXkToN5WKVDWFRywaZqj15Y63V",
+        "percentage": 3.2
+      },
+      {
+        "address": "H3nacGkryE8JjGAnpUw7BjP6q99o58UEBkjZjwzvE7rL",
+        "percentage": 2.6
+      },
+      {
+        "address": "5PHsV5tUw2dFTkpzWL4Nngd87PZFUBTvFiWtWQ9o17UZ",
+        "percentage": 2.1
+      },
+      {
+        "address": "BYE95gNLWn7U6mtkQaQvQomYAkFRDRbQs3Zs1K8asNfs",
+        "percentage": 1.8
+      }
+    ],
+    "logo_url": "https://api.dicebear.com/9.x/shapes/svg?seed=PhantomYield",
+    "price": 0.82,
+    "price_change_24h": 0.74,
+    "volume_24h": 1435000
   },
   {
-    "name": "VaultPepe",
     "mint": "D7YpQe4FzMn8AoT6KxVc3RwLq9BhU2Ns5JgP1ZaXcM77",
-    "riskScore": 73,
+    "name": "Vault Pepe",
+    "symbol": "VPEP",
+    "risk_score": 76,
+    "risk_level": "high",
     "signals": [
-      { "name": "Liquidity Locked", "triggered": false },
-      { "name": "Mint Authority Active", "triggered": false },
-      { "name": "Top Holder Concentration", "triggered": true },
-      { "name": "Honeypot Pattern", "triggered": false },
-      { "name": "Creator Wallet Dumping", "triggered": false }
-    ]
+      {
+        "name": "Mint Authority Active",
+        "weight": 9,
+        "triggered": true
+      },
+      {
+        "name": "Freeze Authority Active",
+        "weight": 7,
+        "triggered": false
+      },
+      {
+        "name": "Liquidity Unlocked",
+        "weight": 10,
+        "triggered": true
+      },
+      {
+        "name": "Low Liquidity Depth",
+        "weight": 6,
+        "triggered": true
+      },
+      {
+        "name": "Top Holder Concentration",
+        "weight": 8,
+        "triggered": true
+      },
+      {
+        "name": "Creator Wallet Concentration",
+        "weight": 7,
+        "triggered": true
+      },
+      {
+        "name": "Recent Creator Dumping",
+        "weight": 8,
+        "triggered": false
+      },
+      {
+        "name": "Suspicious Transfer Pattern",
+        "weight": 6,
+        "triggered": true
+      },
+      {
+        "name": "Honeypot Sell Restriction",
+        "weight": 10,
+        "triggered": false
+      },
+      {
+        "name": "Mutable Metadata",
+        "weight": 4,
+        "triggered": true
+      },
+      {
+        "name": "Unverified Social Links",
+        "weight": 3,
+        "triggered": true
+      },
+      {
+        "name": "Contract Not Audited",
+        "weight": 5,
+        "triggered": true
+      },
+      {
+        "name": "New Token Age",
+        "weight": 5,
+        "triggered": true
+      },
+      {
+        "name": "Abnormal Tax Settings",
+        "weight": 7,
+        "triggered": true
+      },
+      {
+        "name": "Blacklist Function Detected",
+        "weight": 9,
+        "triggered": false
+      },
+      {
+        "name": "Ownership Not Renounced",
+        "weight": 6,
+        "triggered": true
+      },
+      {
+        "name": "Low Trading Volume",
+        "weight": 4,
+        "triggered": true
+      },
+      {
+        "name": "Bot Wash Trading",
+        "weight": 6,
+        "triggered": true
+      }
+    ],
+    "holders": [
+      {
+        "address": "3sPSLNWQhP1PyY5hUtpXfgx3meYqyubFFhCm8HsfMsLK",
+        "percentage": 31.4
+      },
+      {
+        "address": "GaTt9A9Wk5Bmz8C7qTjXQzbeXVjRxd5KfEi5tx5HLzQU",
+        "percentage": 14.9
+      },
+      {
+        "address": "65BZSfxED41xvGBsnzDcPXfjQfjqf84k5e9V2iKXF1m5",
+        "percentage": 9.6
+      },
+      {
+        "address": "A5zrnvUi1dY2z9ds7cEpnJ7dNmjzLttAHgALyxXr4nrB",
+        "percentage": 8.4
+      },
+      {
+        "address": "FtAUkKToWwVZRULcrHm85P49tdhYwGJctKSBu1dzGVTG",
+        "percentage": 5.7
+      },
+      {
+        "address": "2LhxkoU2U9X5Hi6Tj76GXzYF53AhGsoRXWt7Bo3Tyim6",
+        "percentage": 4.3
+      },
+      {
+        "address": "8uvvjKdDtBCZQ2RByMtRm4z6Pqau91HVdcGgZyMh3V28",
+        "percentage": 3.5
+      },
+      {
+        "address": "6cFEVY3xEHLyG6voQ6JorZC2YPxFUieekvtg5Ki7CsbW",
+        "percentage": 2.8
+      },
+      {
+        "address": "HuqRoqrnBmN3BaL8we2iNGMHeu8goSAZBEUgTbJ6VuXv",
+        "percentage": 2.1
+      },
+      {
+        "address": "8RoqYVMuTSYdvqnGfKigtyaJ1wBQjTQiDLgTTs8kf7Ze",
+        "percentage": 1.5
+      }
+    ],
+    "logo_url": "https://api.dicebear.com/9.x/shapes/svg?seed=VaultPepe",
+    "price": 0.00092,
+    "price_change_24h": -7.15,
+    "volume_24h": 711000
   },
   {
-    "name": "PhantomYield",
     "mint": "6PvMaQnU4RzLhC9sXb2KdwYe8TgF1JvNo3AaWp7Em5Q",
-    "riskScore": 35,
+    "name": "Sol Sentinel",
+    "symbol": "SENT",
+    "risk_score": 9,
+    "risk_level": "low",
     "signals": [
-      { "name": "Liquidity Locked", "triggered": true },
-      { "name": "Mint Authority Active", "triggered": true },
-      { "name": "Top Holder Concentration", "triggered": false },
-      { "name": "Honeypot Pattern", "triggered": true },
-      { "name": "Creator Wallet Dumping", "triggered": false }
-    ]
+      {
+        "name": "Mint Authority Active",
+        "weight": 9,
+        "triggered": false
+      },
+      {
+        "name": "Freeze Authority Active",
+        "weight": 7,
+        "triggered": false
+      },
+      {
+        "name": "Liquidity Unlocked",
+        "weight": 10,
+        "triggered": false
+      },
+      {
+        "name": "Low Liquidity Depth",
+        "weight": 6,
+        "triggered": false
+      },
+      {
+        "name": "Top Holder Concentration",
+        "weight": 8,
+        "triggered": false
+      },
+      {
+        "name": "Creator Wallet Concentration",
+        "weight": 7,
+        "triggered": false
+      },
+      {
+        "name": "Recent Creator Dumping",
+        "weight": 8,
+        "triggered": false
+      },
+      {
+        "name": "Suspicious Transfer Pattern",
+        "weight": 6,
+        "triggered": false
+      },
+      {
+        "name": "Honeypot Sell Restriction",
+        "weight": 10,
+        "triggered": false
+      },
+      {
+        "name": "Mutable Metadata",
+        "weight": 4,
+        "triggered": false
+      },
+      {
+        "name": "Unverified Social Links",
+        "weight": 3,
+        "triggered": true
+      },
+      {
+        "name": "Contract Not Audited",
+        "weight": 5,
+        "triggered": false
+      },
+      {
+        "name": "New Token Age",
+        "weight": 5,
+        "triggered": false
+      },
+      {
+        "name": "Abnormal Tax Settings",
+        "weight": 7,
+        "triggered": false
+      },
+      {
+        "name": "Blacklist Function Detected",
+        "weight": 9,
+        "triggered": false
+      },
+      {
+        "name": "Ownership Not Renounced",
+        "weight": 6,
+        "triggered": false
+      },
+      {
+        "name": "Low Trading Volume",
+        "weight": 4,
+        "triggered": false
+      },
+      {
+        "name": "Bot Wash Trading",
+        "weight": 6,
+        "triggered": false
+      }
+    ],
+    "holders": [
+      {
+        "address": "GnC4AXpYXnMQiSHQE1m8uvGz5Nw3uN37YqAM49Gk2aVW",
+        "percentage": 9.8
+      },
+      {
+        "address": "4ZgLUE26YVZtgP8CvhrWVZzyGHmQHx6hWQifNLA11fZ3",
+        "percentage": 7.4
+      },
+      {
+        "address": "EDSA45LzfqpcX5u7umTQi6jwg42iGdXxHgeQi7RQA1TS",
+        "percentage": 6.6
+      },
+      {
+        "address": "5C41a5WnVpyvXmAFgNnLu7zxGGuDFa3jH2jz5nrSo9SL",
+        "percentage": 5.7
+      },
+      {
+        "address": "DqxJqgLhTkk4LVGpwowr6Yq7tvVqAV8yBjUHoV9jkUrj",
+        "percentage": 4.8
+      },
+      {
+        "address": "GdFHG27oRBZ81LEAwvghmKWpXw1W13Y2DqJASV5aVpXN",
+        "percentage": 4.1
+      },
+      {
+        "address": "8UKD3y4nTkvq55FXGjeAuAWKs7xosFwvJQjNbAs8F1us",
+        "percentage": 3.3
+      },
+      {
+        "address": "7EBfZjX8FWBR7JfQRM9UP43v2pATjxkAdu6zXx6FbTuY",
+        "percentage": 2.9
+      },
+      {
+        "address": "EWQ4z646w2iL9vCtmYWA3NVuTfm3s98cxbgWa2CqHfkf",
+        "percentage": 2.4
+      },
+      {
+        "address": "F9QMqJrMTbq3dsEnZqEzSJ7pKrsp1LfMVJcyfFoF5hNp",
+        "percentage": 2.1
+      }
+    ],
+    "logo_url": "https://api.dicebear.com/9.x/shapes/svg?seed=SolSentinel",
+    "price": 12.44,
+    "price_change_24h": 6.28,
+    "volume_24h": 4980000
   },
   {
-    "name": "HelioMint",
     "mint": "Aa5LrHk2VqW9tYxC3NpF8Mz7DgTb1RsUo4Jc6KneP2Q",
-    "riskScore": 88,
+    "name": "Nova Pump",
+    "symbol": "NPMP",
+    "risk_score": 82,
+    "risk_level": "high",
     "signals": [
-      { "name": "Liquidity Locked", "triggered": false },
-      { "name": "Mint Authority Active", "triggered": false },
-      { "name": "Top Holder Concentration", "triggered": false },
-      { "name": "Honeypot Pattern", "triggered": false },
-      { "name": "Creator Wallet Dumping", "triggered": false }
-    ]
+      {
+        "name": "Mint Authority Active",
+        "weight": 9,
+        "triggered": true
+      },
+      {
+        "name": "Freeze Authority Active",
+        "weight": 7,
+        "triggered": true
+      },
+      {
+        "name": "Liquidity Unlocked",
+        "weight": 10,
+        "triggered": true
+      },
+      {
+        "name": "Low Liquidity Depth",
+        "weight": 6,
+        "triggered": true
+      },
+      {
+        "name": "Top Holder Concentration",
+        "weight": 8,
+        "triggered": true
+      },
+      {
+        "name": "Creator Wallet Concentration",
+        "weight": 7,
+        "triggered": true
+      },
+      {
+        "name": "Recent Creator Dumping",
+        "weight": 8,
+        "triggered": true
+      },
+      {
+        "name": "Suspicious Transfer Pattern",
+        "weight": 6,
+        "triggered": false
+      },
+      {
+        "name": "Honeypot Sell Restriction",
+        "weight": 10,
+        "triggered": false
+      },
+      {
+        "name": "Mutable Metadata",
+        "weight": 4,
+        "triggered": true
+      },
+      {
+        "name": "Unverified Social Links",
+        "weight": 3,
+        "triggered": true
+      },
+      {
+        "name": "Contract Not Audited",
+        "weight": 5,
+        "triggered": true
+      },
+      {
+        "name": "New Token Age",
+        "weight": 5,
+        "triggered": true
+      },
+      {
+        "name": "Abnormal Tax Settings",
+        "weight": 7,
+        "triggered": true
+      },
+      {
+        "name": "Blacklist Function Detected",
+        "weight": 9,
+        "triggered": false
+      },
+      {
+        "name": "Ownership Not Renounced",
+        "weight": 6,
+        "triggered": true
+      },
+      {
+        "name": "Low Trading Volume",
+        "weight": 4,
+        "triggered": true
+      },
+      {
+        "name": "Bot Wash Trading",
+        "weight": 6,
+        "triggered": true
+      }
+    ],
+    "holders": [
+      {
+        "address": "5xw6fP4A9XKW7xE3KJzxU3aKcQJkNnHkDnDXmxzEJjUV",
+        "percentage": 34.2
+      },
+      {
+        "address": "EZ4AGDPr3wDHBycKvgdV6Q4ANnZR3qvK6FMGTUS3Xgcv",
+        "percentage": 20.5
+      },
+      {
+        "address": "BkdBw4mk5TVuuUFxrVxLjZdz3Z7yLS84ndGswNJTwVow",
+        "percentage": 11.3
+      },
+      {
+        "address": "5toTLxsDBhVCWgWudmpYBmmwR5nwjjYfhDPVJFtvmD5M",
+        "percentage": 6.8
+      },
+      {
+        "address": "J2PZwL2eVf3eGb2Wh6yRA8F1zD29cSXgm5wvHsgqghFQ",
+        "percentage": 4.7
+      },
+      {
+        "address": "6L9iiMck23bHXZKRhqYz3HTqJzFYhrhnJoVZDdBqw1gR",
+        "percentage": 3.8
+      },
+      {
+        "address": "8aoPtxm7aHa7A9Cf61YcYPpzqPg45d6ssHMtYF1rgSDQ",
+        "percentage": 3.2
+      },
+      {
+        "address": "7o3r47hwoDRNMHapKKvzfWQ2CMaun6e1giwxKLSuKhFx",
+        "percentage": 2.4
+      },
+      {
+        "address": "FT7yVN87dWMTbtCU6RNc1fZnfQtZVDPLp3B9fFxkp5HM",
+        "percentage": 1.9
+      },
+      {
+        "address": "J8nggop2URZvL3pkWqejU37NcnCaPhjQV9R1N58vNNjx",
+        "percentage": 1.3
+      }
+    ],
+    "logo_url": "https://api.dicebear.com/9.x/shapes/svg?seed=NovaPump",
+    "price": 0.018,
+    "price_change_24h": -9.64,
+    "volume_24h": 552000
+  },
+  {
+    "mint": "BfQm2Zx7AaLp6VwC9DkT1RsY8NnE5GhUo3Jc4PazK77Q",
+    "name": "Orbit Ledger",
+    "symbol": "ORBT",
+    "risk_score": 55,
+    "risk_level": "medium",
+    "signals": [
+      {
+        "name": "Mint Authority Active",
+        "weight": 9,
+        "triggered": false
+      },
+      {
+        "name": "Freeze Authority Active",
+        "weight": 7,
+        "triggered": false
+      },
+      {
+        "name": "Liquidity Unlocked",
+        "weight": 10,
+        "triggered": true
+      },
+      {
+        "name": "Low Liquidity Depth",
+        "weight": 6,
+        "triggered": false
+      },
+      {
+        "name": "Top Holder Concentration",
+        "weight": 8,
+        "triggered": true
+      },
+      {
+        "name": "Creator Wallet Concentration",
+        "weight": 7,
+        "triggered": true
+      },
+      {
+        "name": "Recent Creator Dumping",
+        "weight": 8,
+        "triggered": false
+      },
+      {
+        "name": "Suspicious Transfer Pattern",
+        "weight": 6,
+        "triggered": true
+      },
+      {
+        "name": "Honeypot Sell Restriction",
+        "weight": 10,
+        "triggered": false
+      },
+      {
+        "name": "Mutable Metadata",
+        "weight": 4,
+        "triggered": true
+      },
+      {
+        "name": "Unverified Social Links",
+        "weight": 3,
+        "triggered": true
+      },
+      {
+        "name": "Contract Not Audited",
+        "weight": 5,
+        "triggered": true
+      },
+      {
+        "name": "New Token Age",
+        "weight": 5,
+        "triggered": false
+      },
+      {
+        "name": "Abnormal Tax Settings",
+        "weight": 7,
+        "triggered": false
+      },
+      {
+        "name": "Blacklist Function Detected",
+        "weight": 9,
+        "triggered": false
+      },
+      {
+        "name": "Ownership Not Renounced",
+        "weight": 6,
+        "triggered": true
+      },
+      {
+        "name": "Low Trading Volume",
+        "weight": 4,
+        "triggered": true
+      },
+      {
+        "name": "Bot Wash Trading",
+        "weight": 6,
+        "triggered": false
+      }
+    ],
+    "holders": [
+      {
+        "address": "2syeonSgJk28nxS7CWZN1WfrAFNXBb4AjwEXF9a2KEHm",
+        "percentage": 21.1
+      },
+      {
+        "address": "5UJTDRx9SyuKbHFgePbcKAvs2LAQqejHpCBhrD1QbNkM",
+        "percentage": 13.3
+      },
+      {
+        "address": "DiX5soAnk3kWKcP4meCkFfah4jiuAwWom6m2vrv3UEbs",
+        "percentage": 8.8
+      },
+      {
+        "address": "8frQsSKiFAxLxnNm31j4UKa5ZCWmXsVtAx6Wc3CQYaQo",
+        "percentage": 6.9
+      },
+      {
+        "address": "FBypKc4xX8G7zc3fGTDRCygTXbhVmBrwvHuE89g5zpVd",
+        "percentage": 5.8
+      },
+      {
+        "address": "7wr5HGxQ5G23e1Mxg9bhKVa4aofak2J68cx8pmBJzzxE",
+        "percentage": 4.2
+      },
+      {
+        "address": "A89Z9n5AtKMKKE7zkDTy1YLqTUZdx4QwNkMzAQ1P63pe",
+        "percentage": 3.3
+      },
+      {
+        "address": "CQo5H5uoyMdrEk3RxeFDXmXsNw3gEMWkvXwJji2iuAqD",
+        "percentage": 2.7
+      },
+      {
+        "address": "G6VuxgsTmgDihGkcWfwpkoVdBiJg7FtaXmwLQM83aD77",
+        "percentage": 2.2
+      },
+      {
+        "address": "3VDU6EBdiLqByY7Ro3wzJpe3XXemT59LzSdvNNK52tUx",
+        "percentage": 1.6
+      }
+    ],
+    "logo_url": "https://api.dicebear.com/9.x/shapes/svg?seed=OrbitLedger",
+    "price": 2.19,
+    "price_change_24h": 1.16,
+    "volume_24h": 1748000
+  },
+  {
+    "mint": "E9nXoQv3LmYa8CkP6TsF2JwR7GdU4BhZp1Vc5KneM88L",
+    "name": "Drift Cache",
+    "symbol": "DRFT",
+    "risk_score": 32,
+    "risk_level": "medium",
+    "signals": [
+      {
+        "name": "Mint Authority Active",
+        "weight": 9,
+        "triggered": false
+      },
+      {
+        "name": "Freeze Authority Active",
+        "weight": 7,
+        "triggered": false
+      },
+      {
+        "name": "Liquidity Unlocked",
+        "weight": 10,
+        "triggered": false
+      },
+      {
+        "name": "Low Liquidity Depth",
+        "weight": 6,
+        "triggered": true
+      },
+      {
+        "name": "Top Holder Concentration",
+        "weight": 8,
+        "triggered": false
+      },
+      {
+        "name": "Creator Wallet Concentration",
+        "weight": 7,
+        "triggered": false
+      },
+      {
+        "name": "Recent Creator Dumping",
+        "weight": 8,
+        "triggered": false
+      },
+      {
+        "name": "Suspicious Transfer Pattern",
+        "weight": 6,
+        "triggered": false
+      },
+      {
+        "name": "Honeypot Sell Restriction",
+        "weight": 10,
+        "triggered": false
+      },
+      {
+        "name": "Mutable Metadata",
+        "weight": 4,
+        "triggered": true
+      },
+      {
+        "name": "Unverified Social Links",
+        "weight": 3,
+        "triggered": true
+      },
+      {
+        "name": "Contract Not Audited",
+        "weight": 5,
+        "triggered": true
+      },
+      {
+        "name": "New Token Age",
+        "weight": 5,
+        "triggered": true
+      },
+      {
+        "name": "Abnormal Tax Settings",
+        "weight": 7,
+        "triggered": false
+      },
+      {
+        "name": "Blacklist Function Detected",
+        "weight": 9,
+        "triggered": false
+      },
+      {
+        "name": "Ownership Not Renounced",
+        "weight": 6,
+        "triggered": false
+      },
+      {
+        "name": "Low Trading Volume",
+        "weight": 4,
+        "triggered": true
+      },
+      {
+        "name": "Bot Wash Trading",
+        "weight": 6,
+        "triggered": false
+      }
+    ],
+    "holders": [
+      {
+        "address": "D6jCkpx8EJ1VneAvpuxRnAdxbQGfrngD3fTuMBQ9iMmX",
+        "percentage": 15.7
+      },
+      {
+        "address": "6CUrq5jKv8r2pPif9jPEr8rvWagQ9vnucVHb8K5YtjHE",
+        "percentage": 10.4
+      },
+      {
+        "address": "G4wVfEUj7NnnYQnrPz8Pj3cAGCTkvAVrWQz44PtKnZVA",
+        "percentage": 8.2
+      },
+      {
+        "address": "2pBgSA9yHQ17imCeP5SXf4U6Rkqph4Cn4pgvEH33EK1Z",
+        "percentage": 6.1
+      },
+      {
+        "address": "AwDXBV1W3qfbPZFnHk1UzSwSxovP1d8VeBq9BjV8r3BK",
+        "percentage": 4.5
+      },
+      {
+        "address": "BAhaemT1RFkuZcqAzvLCSYN2xk4VHPnbKcv9Lj5tjJyY",
+        "percentage": 3.7
+      },
+      {
+        "address": "H6vX7uY9XvjyX2cEyQZsbwmLKYvHGMU45C7NGpTSRSXy",
+        "percentage": 3.2
+      },
+      {
+        "address": "7G7RXbixR6hPF19eg4sDcyxU8eQAmaYWnnocDmtEEmCQ",
+        "percentage": 2.8
+      },
+      {
+        "address": "FbDTHiBTB3GYS8SLdxhRAu4izsQxWCBaQz6yV9YeFg1z",
+        "percentage": 2.2
+      },
+      {
+        "address": "5mjq5s3c3PzPTjqVTBbqxsm4Yc6mToJYqUAsbWPNQLXx",
+        "percentage": 1.7
+      }
+    ],
+    "logo_url": "https://api.dicebear.com/9.x/shapes/svg?seed=DriftCache",
+    "price": 0.37,
+    "price_change_24h": -0.58,
+    "volume_24h": 864000
   }
 ]
