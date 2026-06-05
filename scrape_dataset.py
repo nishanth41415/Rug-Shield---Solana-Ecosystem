@@ -1,254 +1,349 @@
 """
-scrape_dataset.py — Collect labeled token data from RugCheck + Solsniffer.
+scrape_dataset.py — Generate labeled mock token data and insert into PostgreSQL.
 
-Saves a CSV to data/labeled_tokens.csv with one row per token.
-Each row has 18 signal scores + a label (1=scam, 0=safe).
+Populates all 4 tables in the correct FK order:
+  1. deployer_wallets   (no FK deps)
+  2. confirmed_rugs     (no FK deps)
+  3. tokens             (FK → deployer_wallets)
+  4. signal_results     (FK → tokens)
+
+Also writes data/labeled_tokens.csv for train_model.py.
 
 Usage:
-    python scrape_dataset.py             # scrape + score everything
-    python scrape_dataset.py --mock      # skip real API calls, use mock data only
-    python scrape_dataset.py --count 200 # how many tokens to collect (default 500)
+    python3 scrape_dataset.py --count 500
+    python3 scrape_dataset.py --count 500 --csv-only   (skip DB, just write CSV)
 
-The CSV is what train_model.py reads to train the ML model.
+Requirements:
+    pip install psycopg2-binary pandas python-dotenv
 """
 
-import csv
-import json
-import time
 import argparse
+import csv
 import hashlib
-import requests
-from pathlib import Path
+import os
+import random
 import sys
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent))
+import pandas as pd
+import psycopg2
+from psycopg2.extras import execute_values
+from dotenv import load_dotenv
 
-OUTPUT_PATH = Path(__file__).parent / "data" / "labeled_tokens.csv"
+load_dotenv()
 
-# CSV columns — 18 signal scores + label + address
-COLUMNS = [
-    "token_address",
-    "s01_mint_authority",
-    "s02_freeze_authority",
-    "s03_upgradeable",
-    "s04_metadata_mutable",
-    "s05_lp_lock",
-    "s06_deployer_lp",
-    "s08_top10_holders",
-    "s09_whale_dominance",
-    "s10_sybil_clusters",
-    "s11_rug_history",
-    "s12_wallet_age",
-    "s13_suspicious_tx",
-    "s14_bot_spike",
-    "s15_wash_trading",
-    "s16_insider_dump",
-    "s17_social_verify",
-    "s18_fake_engagement",
-    "label",   # 1 = scam, 0 = safe
-    "source",  # rugcheck | solsniffer | mock
+# ------------------------------------------------------------------ #
+#  DB config — uses POSTGRES_* from config.py / .env                 #
+# ------------------------------------------------------------------ #
+from config import (
+    POSTGRES_DB,
+    POSTGRES_HOST,
+    POSTGRES_PASSWORD,
+    POSTGRES_PORT,
+    POSTGRES_USER,
+)
+
+DB_CONFIG = {
+    "host":     POSTGRES_HOST,
+    "port":     POSTGRES_PORT,
+    "dbname":   POSTGRES_DB,
+    "user":     POSTGRES_USER,
+    "password": POSTGRES_PASSWORD,
+}
+
+BASE      = Path(__file__).parent
+DATA_DIR  = BASE / "data"
+DATA_DIR.mkdir(exist_ok=True)
+CSV_PATH  = DATA_DIR / "labeled_tokens.csv"
+
+# ------------------------------------------------------------------ #
+#  Signal definitions matching SIGNAL_WEIGHTS in scorer.py           #
+# ------------------------------------------------------------------ #
+SIGNALS = [
+    ("S01", "mint_authority",      20),
+    ("S02", "freeze_authority",     8),
+    ("S03", "upgradeable",         10),
+    ("S04", "metadata_mutable",     6),
+    ("S05", "lp_not_locked",       18),
+    ("S06", "deployer_lp_control", 12),
+    ("S07", "liquidity_removal",   15),
+    ("S08", "top10_concentration", 10),
+    ("S09", "whale_dominance",      8),
+    ("S10", "sybil_cluster",       12),
+    ("S11", "rug_history",         16),
+    ("S12", "wallet_age",           6),
+    ("S13", "suspicious_patterns",  8),
+    ("S14", "bot_activity",        10),
+    ("S15", "wash_trading",         8),
+    ("S16", "dump_pattern",        14),
+    ("S17", "social_mismatch",      6),
+    ("S18", "fake_engagement",      4),
 ]
 
+TOTAL_WEIGHT = 191
 
 # ------------------------------------------------------------------ #
-#  Real API scrapers                                                  #
+#  Deterministic helpers (same address → same base values)           #
 # ------------------------------------------------------------------ #
 
-def fetch_rugcheck_tokens(limit: int = 250) -> list[dict]:
-    """
-    Fetch recently flagged (scam) and recently passed (safe) tokens
-    from RugCheck's public API.
-    Returns list of {"address": str, "label": int}
-    """
-    tokens = []
-
-    # Scam tokens — recently rugged
-    try:
-        print("Fetching scam tokens from RugCheck...")
-        url = "https://api.rugcheck.xyz/v1/stats/recent"
-        r = requests.get(url, timeout=15)
-        if r.status_code == 200:
-            data = r.json()
-            for item in data[:limit // 2]:
-                addr = item.get("mint") or item.get("address")
-                if addr:
-                    tokens.append({"address": addr, "label": 1, "source": "rugcheck"})
-            print(f"  Got {len(tokens)} scam tokens from RugCheck")
-    except Exception as e:
-        print(f"  RugCheck scam fetch failed: {e}")
-
-    # Safe tokens — passed rugcheck
-    try:
-        url = "https://api.rugcheck.xyz/v1/stats/new_tokens"
-        r = requests.get(url, timeout=15)
-        if r.status_code == 200:
-            data = r.json()
-            safe = []
-            for item in data[:limit // 2]:
-                addr = item.get("mint") or item.get("address")
-                score = item.get("score", 100)
-                # RugCheck score > 80 = considered safe
-                if addr and score > 80:
-                    safe.append({"address": addr, "label": 0, "source": "rugcheck"})
-            tokens.extend(safe)
-            print(f"  Got {len(safe)} safe tokens from RugCheck")
-    except Exception as e:
-        print(f"  RugCheck safe fetch failed: {e}")
-
-    return tokens
+def _hash_float(seed: str, salt: str, lo: float = 0.0, hi: float = 1.0) -> float:
+    h = int(hashlib.sha256(f"{seed}:{salt}".encode()).hexdigest(), 16)
+    return lo + (h % 10000) / 10000 * (hi - lo)
 
 
-def fetch_solsniffer_tokens(limit: int = 250) -> list[dict]:
-    """
-    Fetch tokens from Solsniffer's public endpoint.
-    Solsniffer score < 30 = scam, > 70 = safe.
-    """
-    tokens = []
-    try:
-        print("Fetching tokens from Solsniffer...")
-        url = "https://solsniffer.com/api/v2/tokens/recent"
-        r = requests.get(url, timeout=15, headers={"Accept": "application/json"})
-        if r.status_code == 200:
-            data = r.json()
-            items = data if isinstance(data, list) else data.get("tokens", [])
-            for item in items[:limit]:
-                addr  = item.get("address") or item.get("mint")
-                score = item.get("score", 50)
-                if not addr:
-                    continue
-                if score < 30:
-                    tokens.append({"address": addr, "label": 1, "source": "solsniffer"})
-                elif score > 70:
-                    tokens.append({"address": addr, "label": 0, "source": "solsniffer"})
-            print(f"  Got {len(tokens)} tokens from Solsniffer")
-    except Exception as e:
-        print(f"  Solsniffer fetch failed: {e}")
+def _rand_address(prefix: str = "") -> str:
+    chars = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+    return prefix + "".join(random.choices(chars, k=44 - len(prefix)))
 
-    return tokens
+
+def _rand_date(days_back_min: int, days_back_max: int) -> datetime:
+    days = random.randint(days_back_min, days_back_max)
+    return datetime.now(timezone.utc) - timedelta(days=days)
 
 
 # ------------------------------------------------------------------ #
-#  Mock token generator (used when APIs are unavailable)              #
+#  Signal score generators                                           #
 # ------------------------------------------------------------------ #
 
-# 20 real Solana token addresses for realistic mock data
-KNOWN_SCAM_ADDRESSES = [
-    "EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm",
-    "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
-    "Fishy64jCaa3ooqXw7BHtKvYD8BTkSyAPh6RNE3xZpcN",
-    "8qJSyQprMC57TWKaYEmetUR3UUiTP2M3hXdcvFB3EfQ8",
-    "4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R",
-    "9nEqaUcb16sQ3Tn1psbkWqyhPdLmfHWjKGqDf4TgrKEy",
-    "7GCihgDB8fe6KNjn2MYtkzZcRjQy3t9GHdC8uHYmW2hr",
-    "HZ1JovNiVvGqszpscreQrzHAA2F5kVJFyfbHUFhHMJkF",
-    "mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So",
-    "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU",
-]
-
-KNOWN_SAFE_ADDRESSES = [
-    "So11111111111111111111111111111111111111112",
-    "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-    "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
-    "7dHbWXmci3dT8UFYWYZweBLXgycu7Y3iL6trKn1Y7ARj",
-    "kinXdEcpDQeHPEuQnqmUgtYykqKTVZek2pqhdqIKkD",
-    "SRMuApVNdxXokk5GT7XD5cUUgXMBCoAz2LHeuAoKWRt",
-    "MNDEFzGvMt87ueuHvVU9VcTqsAP5b3fTGPsHuuPA5ey",
-    "StepAscQoEioFxxWGnh2sLBDFp9d8rvKz2Yp39iDpyT",
-    "rndrizKT3MK1iimdxRdWabcF7Zg7AR5T4nud4EkHBof",
-    "AGFEad2et2ZJif9jaGpdMixQqvW5i81aBdvKe7PHNfz3",
-]
+def _scam_signal_score(signal_id: str, seed: str) -> float:
+    """For scam tokens — high scores (risky) with some variance."""
+    base = _hash_float(seed, signal_id, 0.5, 1.0)
+    # Certain critical signals are almost always triggered for scams
+    if signal_id in ("S01", "S05", "S11", "S16"):
+        return round(min(1.0, base + 0.2), 4)
+    return round(base, 4)
 
 
-def generate_mock_tokens(count: int) -> list[dict]:
-    """Generate deterministic mock tokens when APIs fail."""
-    print(f"Generating {count} mock tokens...")
-    tokens = []
-    half = count // 2
+def _safe_signal_score(signal_id: str, seed: str) -> float:
+    """For safe tokens — low scores with some noise."""
+    base = _hash_float(seed, signal_id, 0.0, 0.4)
+    # Authority signals almost always revoked for safe tokens
+    if signal_id in ("S01", "S02"):
+        return round(max(0.0, base - 0.3), 4)
+    return round(base, 4)
 
-    # Use real addresses first, then generate synthetic ones
-    for i in range(half):
-        if i < len(KNOWN_SCAM_ADDRESSES):
-            addr = KNOWN_SCAM_ADDRESSES[i]
+
+def _compute_final_score(signal_scores: dict) -> int:
+    """Mirror of scorer.py compute_score() formula."""
+    weighted_sum = sum(
+        signal_scores.get(sid, 0.0) * w
+        for sid, _, w in SIGNALS
+    )
+    rule_part = (weighted_sum / TOTAL_WEIGHT) * 100
+    # Use rule-based score as ML proxy (no real model at data-gen time)
+    ml_prob   = rule_part / 100
+    raw       = rule_part + 15 * ml_prob
+    return min(100, round(raw))
+
+
+def _risk_label(score: int) -> str:
+    if score >= 70:
+        return "HIGH"
+    elif score >= 40:
+        return "MEDIUM"
+    return "LOW"
+
+
+# ------------------------------------------------------------------ #
+#  Generate one token record                                          #
+# ------------------------------------------------------------------ #
+
+def generate_token(label: int, index: int) -> dict:
+    """
+    label: 1 = scam, 0 = safe
+    Returns a dict with all fields needed for all 4 tables.
+    """
+    seed         = f"token_{label}_{index}"
+    mint_address = _rand_address("S" if label == 0 else "R")
+
+    # Deployer wallet
+    deployer_wallet = _rand_address("D")
+    is_flagged      = bool(label == 1 and random.random() > 0.3)
+    wallet_age_days = random.randint(1, 10) if label == 1 else random.randint(90, 1000)
+    first_seen      = _rand_date(wallet_age_days, wallet_age_days)
+    last_seen       = _rand_date(0, 5)
+
+    # Token metadata
+    token_names  = ["SafeMoon", "MoonRocket", "SolFloki", "RugToken", "SafeInu",
+                    "DiamondHands", "ToTheMoon", "EasyMoney", "TrustCoin", "GemToken"]
+    token_name   = random.choice(token_names) + str(index)
+    symbol       = token_name[:4].upper()
+    created_at   = _rand_date(1, wallet_age_days)
+
+    # Signal scores
+    signal_scores = {}
+    for sid, _, _ in SIGNALS:
+        if label == 1:
+            signal_scores[sid] = _scam_signal_score(sid, seed)
         else:
-            seed = hashlib.sha256(f"scam_{i}".encode()).hexdigest()[:44]
-            addr = seed
-        tokens.append({"address": addr, "label": 1, "source": "mock"})
+            signal_scores[sid] = _safe_signal_score(sid, seed)
 
-    for i in range(count - half):
-        if i < len(KNOWN_SAFE_ADDRESSES):
-            addr = KNOWN_SAFE_ADDRESSES[i]
-        else:
-            seed = hashlib.sha256(f"safe_{i}".encode()).hexdigest()[:44]
-            addr = seed
-        tokens.append({"address": addr, "label": 0, "source": "mock"})
+    final_score = _compute_final_score(signal_scores)
+    risk_level  = _risk_label(final_score)
 
-    return tokens
+    # Rug date (only for scam tokens, ~70% have a recorded rug date)
+    rug_date = None
+    if label == 1 and random.random() > 0.3:
+        rug_date = (_rand_date(1, 30)).date()
+
+    return {
+        # deployer_wallets
+        "deployer_wallet":  deployer_wallet,
+        "first_seen":       first_seen,
+        "last_seen":        last_seen,
+        "total_tokens":     random.randint(1, 5) if label == 1 else 1,
+        "is_flagged":       is_flagged,
+        "flag_reason":      "Confirmed rug pull deployer" if is_flagged else None,
+
+        # tokens
+        "mint_address":     mint_address,
+        "name":             token_name,
+        "symbol":           symbol,
+        "created_at":       created_at,
+        "last_score":       final_score,
+        "risk_level":       risk_level,
+
+        # confirmed_rugs (scam only)
+        "rug_date":         rug_date,
+        "source":           random.choice(["RugCheck", "Solsniffer", "Manual"]) if label == 1 else None,
+
+        # signal_results
+        "signal_scores":    signal_scores,
+
+        # ML training label
+        "label":            label,
+
+        # CSV columns (flat signal scores)
+        **{f"s{sid[1:].zfill(2)}_{name}": score
+           for (sid, name, _), score in zip(SIGNALS, signal_scores.values())},
+    }
 
 
 # ------------------------------------------------------------------ #
-#  Score a single token using all 18 signals                         #
+#  DB insertion                                                       #
 # ------------------------------------------------------------------ #
 
-def score_token(address: str) -> dict:
-    """
-    Run all 18 signals on a token address.
-    Returns a flat dict of signal_id → score.
-    """
-    from signals.signals import run_all_signals
-    from signals.graph_signals import run_graph_signals
-    from signals.behavioral_signals import run_behavioral_signals
+def insert_into_db(records: list[dict], conn) -> None:
+    cur = conn.cursor()
 
-    scores = {}
+    print("\n[DB] Inserting deployer_wallets...")
+    deployer_rows = [
+        (
+            r["deployer_wallet"],
+            r["first_seen"],
+            r["last_seen"],
+            r["total_tokens"],
+            r["is_flagged"],
+            r["flag_reason"],
+        )
+        for r in records
+    ]
+    execute_values(cur, """
+        INSERT INTO deployer_wallets
+            (wallet_address, first_seen, last_seen, total_tokens, is_flagged, flag_reason)
+        VALUES %s
+        ON CONFLICT (wallet_address) DO NOTHING
+    """, deployer_rows)
+    print(f"  → {cur.rowcount} rows inserted (duplicates skipped)")
 
-    # S01–S09
-    for sig in run_all_signals(address):
-        key = f"s{sig['signal_id'][1:].zfill(2)}_{sig['signal_id'][1:]}"
-        scores[sig["signal_id"]] = sig["score"]
+    print("[DB] Inserting confirmed_rugs...")
+    rug_rows = [
+        (
+            r["deployer_wallet"],
+            r["mint_address"],
+            r["name"],
+            r["rug_date"],
+            r["source"],
+        )
+        for r in records if r["label"] == 1 and r["rug_date"] is not None
+    ]
+    if rug_rows:
+        execute_values(cur, """
+            INSERT INTO confirmed_rugs
+                (deployer_wallet, token_address, token_name, rug_date, source)
+            VALUES %s
+            ON CONFLICT DO NOTHING
+        """, rug_rows)
+        print(f"  → {len(rug_rows)} rug records inserted")
 
-    # S10–S13 (use address as deployer wallet proxy for now)
-    for sig in run_graph_signals(address, deployer_wallet=address):
-        scores[sig["signal_id"]] = sig["score"]
+    print("[DB] Inserting tokens...")
+    token_rows = [
+        (
+            r["mint_address"],
+            r["deployer_wallet"],
+            r["name"],
+            r["symbol"],
+            r["created_at"],
+            r["last_score"],
+            r["risk_level"],
+        )
+        for r in records
+    ]
+    execute_values(cur, """
+        INSERT INTO tokens
+            (mint_address, deployer_wallet, name, symbol, created_at, last_score, risk_level)
+        VALUES %s
+        ON CONFLICT (mint_address) DO NOTHING
+    """, token_rows)
+    print(f"  → {cur.rowcount} tokens inserted")
 
-    # S14–S18
-    for sig in run_behavioral_signals(address):
-        scores[sig["signal_id"]] = sig["score"]
+    # Fetch inserted token IDs (needed for signal_results FK)
+    print("[DB] Fetching token IDs for signal_results...")
+    mint_to_id = {}
+    cur.execute("SELECT id, mint_address FROM tokens")
+    for row in cur.fetchall():
+        mint_to_id[row[1]] = row[0]
 
-    return scores
+    print("[DB] Inserting signal_results...")
+    sig_rows = []
+    for r in records:
+        token_id = mint_to_id.get(r["mint_address"])
+        if token_id is None:
+            continue
+        for sid, name, weight in SIGNALS:
+            score     = r["signal_scores"][sid]
+            triggered = score >= 0.5   # triggered if score above midpoint
+            sig_rows.append((
+                token_id,
+                sid,
+                name,
+                triggered,
+                weight,
+            ))
+
+    execute_values(cur, """
+        INSERT INTO signal_results
+            (token_id, signal_id, signal_name, triggered, weight)
+        VALUES %s
+    """, sig_rows)
+    print(f"  → {len(sig_rows)} signal result rows inserted")
+
+    conn.commit()
+    cur.close()
+    print("\n[DB] All tables populated successfully. ✅")
 
 
-def build_row(token: dict) -> dict | None:
-    """Build one CSV row for a token. Returns None on failure."""
-    addr  = token["address"]
-    label = token["label"]
-    source = token["source"]
+# ------------------------------------------------------------------ #
+#  Write CSV for train_model.py                                       #
+# ------------------------------------------------------------------ #
 
-    try:
-        scores = score_token(addr)
-        return {
-            "token_address":       addr,
-            "s01_mint_authority":  scores.get("S01", 0),
-            "s02_freeze_authority":scores.get("S02", 0),
-            "s03_upgradeable":     scores.get("S03", 0),
-            "s04_metadata_mutable":scores.get("S04", 0),
-            "s05_lp_lock":         scores.get("S05", 0),
-            "s06_deployer_lp":     scores.get("S06", 0),
-            "s08_top10_holders":   scores.get("S08", 0),
-            "s09_whale_dominance": scores.get("S09", 0),
-            "s10_sybil_clusters":  scores.get("S10", 0),
-            "s11_rug_history":     scores.get("S11", 0),
-            "s12_wallet_age":      scores.get("S12", 0),
-            "s13_suspicious_tx":   scores.get("S13", 0),
-            "s14_bot_spike":       scores.get("S14", 0),
-            "s15_wash_trading":    scores.get("S15", 0),
-            "s16_insider_dump":    scores.get("S16", 0),
-            "s17_social_verify":   scores.get("S17", 0),
-            "s18_fake_engagement": scores.get("S18", 0),
-            "label":               label,
-            "source":              source,
-        }
-    except Exception as e:
-        print(f"  [SKIP] {addr[:12]}... — {e}")
-        return None
+def write_csv(records: list[dict]) -> None:
+    rows = []
+    for r in records:
+        row = {"mint_address": r["mint_address"], "label": r["label"]}
+        for sid, name, _ in SIGNALS:
+            col        = f"s{sid[1:].zfill(2)}_{name}"
+            row[col]   = r["signal_scores"][sid]
+        # Add s07 explicitly with correct column name for train_model.py
+        row["s07_liquidity_removal"] = r["signal_scores"].get("S07", 0.0)
+        rows.append(row)
+
+    df = pd.DataFrame(rows)
+    df.to_csv(CSV_PATH, index=False)
+    print(f"\n[CSV] Saved {len(df)} rows → {CSV_PATH}")
+    print(f"  Scam tokens : {(df['label'] == 1).sum()}")
+    print(f"  Safe tokens : {(df['label'] == 0).sum()}")
 
 
 # ------------------------------------------------------------------ #
@@ -256,66 +351,69 @@ def build_row(token: dict) -> dict | None:
 # ------------------------------------------------------------------ #
 
 def main():
-    parser = argparse.ArgumentParser(description="Scrape and score token dataset")
-    parser.add_argument("--mock",  action="store_true", help="Skip real API calls")
-    parser.add_argument("--count", type=int, default=500, help="Target token count")
+    parser = argparse.ArgumentParser(description="Generate RugShield dataset")
+    parser.add_argument("--count",    type=int, default=500,
+                        help="Total tokens to generate (half scam, half safe)")
+    parser.add_argument("--csv-only", action="store_true",
+                        help="Write CSV only, skip database insertion")
     args = parser.parse_args()
 
-    print(f"\n=== Dataset Scraper ===")
-    print(f"Target: {args.count} tokens\n")
+    total  = args.count
+    half   = total // 2
 
-    # Collect raw token list
-    tokens = []
+    print(f"\n=== RugShield Dataset Generator ===")
+    print(f"Generating {total} tokens ({half} scam + {half} safe)...\n")
 
-    if not args.mock:
-        tokens += fetch_rugcheck_tokens(limit=args.count // 2)
-        time.sleep(1)
-        tokens += fetch_solsniffer_tokens(limit=args.count // 2)
+    random.seed(42)   # reproducible
 
-    # Fill remaining with mock if APIs didn't return enough
-    if len(tokens) < args.count:
-        needed = args.count - len(tokens)
-        print(f"APIs returned {len(tokens)} tokens — filling {needed} with mock data")
-        tokens += generate_mock_tokens(needed)
+    records = []
+    for i in range(half):
+        records.append(generate_token(label=1, index=i))   # scam
+    for i in range(half):
+        records.append(generate_token(label=0, index=i))   # safe
 
-    # Deduplicate by address
-    seen = set()
-    unique_tokens = []
-    for t in tokens:
-        if t["address"] not in seen:
-            seen.add(t["address"])
-            unique_tokens.append(t)
+    random.shuffle(records)
 
-    print(f"\nScoring {len(unique_tokens)} unique tokens...\n")
+    # Always write CSV
+    write_csv(records)
 
-    # Score each token and write to CSV
-    OUTPUT_PATH.parent.mkdir(exist_ok=True)
-    rows_written = 0
+    if args.csv_only:
+        print("\n[--csv-only mode] Skipping database insertion.")
+        print("Next step: python3 train_model.py")
+        return
 
-    with open(OUTPUT_PATH, "w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=COLUMNS)
-        writer.writeheader()
+    # Connect and insert into DB
+    print(f"\n[DB] Connecting to PostgreSQL...")
+    print(f"  Host   : {DB_CONFIG['host']}:{DB_CONFIG['port']}")
+    print(f"  DB     : {DB_CONFIG['dbname']}")
+    print(f"  User   : {DB_CONFIG['user']}")
 
-        for i, token in enumerate(unique_tokens, 1):
-            row = build_row(token)
-            if row:
-                writer.writerow(row)
-                rows_written += 1
-                label_str = "SCAM" if token["label"] == 1 else "SAFE"
-                print(f"  [{i:>3}/{len(unique_tokens)}] {token['address'][:16]}...  {label_str}  ({token['source']})")
+    try:
+        conn = psycopg2.connect(**DB_CONFIG)
+        print("  Connection: ✅\n")
+    except Exception as e:
+        print(f"\n[ERROR] Could not connect to PostgreSQL: {e}")
+        print("\nFix: create a .env file in this folder (see env.example) with:")
+        print("  POSTGRES_HOST=localhost")
+        print("  POSTGRES_DB=rugshield")
+        print("  POSTGRES_USER=rugshield")
+        print("  POSTGRES_PASSWORD=change_me")
+        print("\nOr run with --csv-only to skip the DB step.")
+        sys.exit(1)
 
-    print(f"\nDone! {rows_written} tokens saved to {OUTPUT_PATH}")
+    try:
+        insert_into_db(records, conn)
+    except Exception as e:
+        conn.rollback()
+        print(f"\n[ERROR] DB insertion failed: {e}")
+        print("The CSV was still saved. Fix the DB error and re-run.")
+        sys.exit(1)
+    finally:
+        conn.close()
 
-    # Quick summary
-    with open(OUTPUT_PATH) as f:
-        reader = csv.DictReader(f)
-        rows = list(reader)
-    scam_count = sum(1 for r in rows if r["label"] == "1")
-    safe_count = sum(1 for r in rows if r["label"] == "0")
-    print(f"  Scam tokens : {scam_count}")
-    print(f"  Safe tokens : {safe_count}")
-    print(f"  Total rows  : {len(rows)}")
-    print(f"\nNext step: python train_model.py")
+    print(f"\nNext steps:")
+    print(f"  1. python3 train_model.py   ← retrain ML model")
+    print(f"  2. python3 scorer.py <any_token_address>   ← test scorer")
 
 
 if __name__ == "__main__":

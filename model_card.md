@@ -87,16 +87,34 @@ All features are normalized signal scores in the range **0.0 – 1.0**.
 
 ## Final Score Formula
 
-The final 0–100 risk score combines rule-based and ML signals:
+The final 0–100 risk score is computed as:
 
 ```
-final_score = (0.60 × weighted_signal_average + 0.40 × ml_probability) × 100
+final_score = (weighted_sum / 191) × 100 + 15 × ml_probability
 ```
 
-| Component | Weight | Description |
+| Component | Value | Description |
 |---|---|---|
-| Rule-based signals | 60% | Weighted average of all 18 signal scores |
-| ML model probability | 40% | GradientBoosting scam probability |
+| weighted_sum | variable | Sum of (signal_score × integer_weight) for all 18 signals |
+| 191 | fixed | Total of all integer weights (normalisation denominator) |
+| 15 (λ) | fixed | Lambda — scaling factor for the ML probability contribution |
+| ml_probability | 0.0–1.0 | GradientBoosting P(scam) |
+
+### Risk Bands
+
+| Final Score | Risk Level | Recommendation |
+|---|---|---|
+| 0–39 | LOW | Safe to consider |
+| 40–69 | MEDIUM | Proceed with caution |
+| 70–100 | HIGH | Avoid — high rug pull risk |
+
+### Real-Time Update (Post-Launch)
+
+```
+New Score = α × Old Score + (1 − α) × New Signals Score    [α = 0.7]
+```
+
+This ensures score stability while allowing real-time adaptability when new on-chain signals arrive.
 
 ---
 

@@ -10,7 +10,7 @@ Each signal outputs a score from **0.0 (safe) to 1.0 (critical risk)**.
 ### S01 — Mint Authority Check
 | Field | Value |
 |---|---|
-| Weight | 0.90 (Critical) |
+| Weight | 20 / 191 (Critical) |
 | What it detects | Whether the token creator can still print new tokens |
 | Why it matters | An active mint authority means the deployer can inflate supply at any time, dumping on holders |
 | Score logic | 0.9 if mint authority is active, 0.0 if revoked |
@@ -21,7 +21,7 @@ Each signal outputs a score from **0.0 (safe) to 1.0 (critical risk)**.
 ### S02 — Freeze Authority Check
 | Field | Value |
 |---|---|
-| Weight | 0.70 (High) |
+| Weight | 8 / 191 (High) |
 | What it detects | Whether the creator can freeze token accounts and prevent holders from selling |
 | Why it matters | A freeze authority allows the deployer to trap holders by blocking all transfers |
 | Score logic | 0.7 if freeze authority is active, 0.0 if revoked |
@@ -32,7 +32,7 @@ Each signal outputs a score from **0.0 (safe) to 1.0 (critical risk)**.
 ### S03 — Upgradeable Contract Check
 | Field | Value |
 |---|---|
-| Weight | 0.60 (High) |
+| Weight | 10 / 191 (High) |
 | What it detects | Whether the program logic can be swapped out after deployment |
 | Why it matters | An upgradeable program means the rules of the token can be changed silently after launch |
 | Score logic | 0.75 if upgradeable, 0.05 if immutable |
@@ -43,7 +43,7 @@ Each signal outputs a score from **0.0 (safe) to 1.0 (critical risk)**.
 ### S04 — Metadata Mutability Check
 | Field | Value |
 |---|---|
-| Weight | 0.50 (Medium) |
+| Weight | 6 / 191 (Medium) |
 | What it detects | Whether the token name, symbol, or image URI can be changed |
 | Why it matters | Mutable metadata allows identity switching — a scam token can impersonate a legitimate one |
 | Score logic | 0.55 if mutable, 0.0 if immutable |
@@ -56,7 +56,7 @@ Each signal outputs a score from **0.0 (safe) to 1.0 (critical risk)**.
 ### S05 — LP Lock Status Check
 | Field | Value |
 |---|---|
-| Weight | 0.80 (Critical) |
+| Weight | 18 / 191 (Critical) |
 | What it detects | What percentage of liquidity pool tokens are locked |
 | Why it matters | Unlocked LP means the deployer can drain all liquidity instantly (classic rug pull) |
 | Score logic | 1.0 − locked_percent (fully locked = 0.0, fully unlocked = 1.0) |
@@ -67,7 +67,7 @@ Each signal outputs a score from **0.0 (safe) to 1.0 (critical risk)**.
 ### S06 — Deployer LP Concentration Check
 | Field | Value |
 |---|---|
-| Weight | 0.75 (Critical) |
+| Weight | 12 / 191 (High) |
 | What it detects | What fraction of LP tokens the deployer wallet holds |
 | Why it matters | If the deployer controls most of the LP, they can rug at any moment |
 | Score logic | Directly equals deployer_lp_percent (0 → safe, 1 → critical) |
@@ -80,7 +80,7 @@ Each signal outputs a score from **0.0 (safe) to 1.0 (critical risk)**.
 ### S08 — Top 10 Holder Concentration
 | Field | Value |
 |---|---|
-| Weight | 0.65 (High) |
+| Weight | 10 / 191 (High) |
 | What it detects | Combined supply percentage held by the top 10 wallets |
 | Why it matters | High concentration means a coordinated sell-off can collapse the token price |
 | Score logic | Directly equals top_10_concentration (capped at 1.0) |
@@ -91,7 +91,7 @@ Each signal outputs a score from **0.0 (safe) to 1.0 (critical risk)**.
 ### S09 — Whale Dominance Check
 | Field | Value |
 |---|---|
-| Weight | 0.70 (High) |
+| Weight | 8 / 191 (Medium) |
 | What it detects | Supply percentage held by the single largest wallet |
 | Why it matters | One whale can single-handedly crash the price with a single transaction |
 | Score logic | Tiered: ≥50% → 0.95, ≥30% → 0.85, ≥10% → 0.65, ≥5% → 0.4, else 0.1 |
@@ -104,7 +104,7 @@ Each signal outputs a score from **0.0 (safe) to 1.0 (critical risk)**.
 ### S10 — Sybil Wallet Clustering
 | Field | Value |
 |---|---|
-| Weight | 0.75 (High) |
+| Weight | 12 / 191 (High) |
 | What it detects | Number of fake wallet clusters around the deployer (wallets funded from the same source) |
 | Why it matters | Sybil wallets are used to fake organic trading activity and hide insider concentration |
 | Score logic | 0 clusters → 0.0, 1 → 0.4, 2 → 0.65, 3 → 0.8, 4+ → 0.95 |
@@ -116,7 +116,7 @@ Each signal outputs a score from **0.0 (safe) to 1.0 (critical risk)**.
 ### S11 — Previous Rug Pull History
 | Field | Value |
 |---|---|
-| Weight | 0.90 (Critical) |
+| Weight | 16 / 191 (Critical) |
 | What it detects | Whether the deployer or connected wallets have rugged before |
 | Why it matters | Serial ruggers reuse wallets or fund new ones from the same source |
 | Score logic | Flagged deployer → 0.95, hop 1 → 0.75, hop 2 → 0.55, hop 3 → 0.35, clean → 0.05 |
@@ -128,7 +128,7 @@ Each signal outputs a score from **0.0 (safe) to 1.0 (critical risk)**.
 ### S12 — Wallet Age Under 30 Days
 | Field | Value |
 |---|---|
-| Weight | 0.80 (Critical) |
+| Weight | 6 / 191 (Medium) |
 | What it detects | How old the deployer wallet is in days |
 | Why it matters | Rug pullers create fresh wallets to avoid history checks |
 | Score logic | <7 days → 0.95, <30 days → 0.75, <90 days → 0.4, 90+ days → 0.05 |
@@ -140,7 +140,7 @@ Each signal outputs a score from **0.0 (safe) to 1.0 (critical risk)**.
 ### S13 — Suspicious Transaction Patterns
 | Field | Value |
 |---|---|
-| Weight | 0.65 (High) |
+| Weight | 8 / 191 (High) |
 | What it detects | Circular fund flows and layering in the wallet graph |
 | Why it matters | Layered transactions are used to obscure the origin of funds and fake trading activity |
 | Score logic | Weighted combo: 0.5 × sybil_score + 0.5 × proximity_score |
@@ -154,7 +154,7 @@ Each signal outputs a score from **0.0 (safe) to 1.0 (critical risk)**.
 ### S14 — Bot Activity Spike Detection
 | Field | Value |
 |---|---|
-| Weight | 0.60 (High) |
+| Weight | 10 / 191 (High) |
 | What it detects | Unnatural transaction volume spikes at launch (many txns per second) |
 | Why it matters | Bots are used to simulate organic demand and manipulate price at launch |
 | Score logic | spike_ratio = peak_volume / median_volume: <3x → 0.1, <6x → 0.45, <10x → 0.7, 10x+ → 0.9 |
@@ -165,7 +165,7 @@ Each signal outputs a score from **0.0 (safe) to 1.0 (critical risk)**.
 ### S15 — Wash Trading Detection via Z-score
 | Field | Value |
 |---|---|
-| Weight | 0.65 (High) |
+| Weight | 8 / 191 (Medium) |
 | What it detects | Wallets that repeatedly buy and sell equal amounts to fake volume |
 | Why it matters | Wash trading inflates volume metrics, making a low-interest token look active |
 | Score logic | Proportion of wallets with buy/sell ratio > 0.8, scaled up by 1.5x |
@@ -176,7 +176,7 @@ Each signal outputs a score from **0.0 (safe) to 1.0 (critical risk)**.
 ### S16 — Sudden Dump Pattern from Insider Wallets
 | Field | Value |
 |---|---|
-| Weight | 0.85 (Critical) |
+| Weight | 14 / 191 (Critical) |
 | What it detects | Pre-launch wallets that received tokens and sold quickly after launch |
 | Why it matters | Insiders who dump immediately after launch is the most direct indicator of a coordinated rug |
 | Score logic | 0.6 × worst_insider_score + 0.4 × avg_insider_score |
@@ -189,11 +189,11 @@ Each signal outputs a score from **0.0 (safe) to 1.0 (critical risk)**.
 ### S17 — Twitter/Telegram Account Verification
 | Field | Value |
 |---|---|
-| Weight | 0.55 (Medium) |
+| Weight | 6 / 191 (Medium) |
 | What it detects | Existence and age of the project's social media accounts |
 | Why it matters | Anonymous projects with no social presence or brand-new accounts are high risk |
 | Score logic | No accounts → 0.85, <7 days old → 0.8, <30 days → 0.55, <180 days → 0.3, 180+ → 0.1 |
-| Status | Currently mocked — swap in Twitter API v2 / Telegram Bot API when keys available |
+| Status | `UNAVAILABLE` without API keys — connect Twitter API v2 / Telegram Bot API via `.env` |
 | Example trigger | Project has Twitter account created 1 day before token launch |
 
 ---
@@ -201,11 +201,11 @@ Each signal outputs a score from **0.0 (safe) to 1.0 (critical risk)**.
 ### S18 — Fake Engagement Detection via NLP
 | Field | Value |
 |---|---|
-| Weight | 0.50 (Medium) |
+| Weight | 4 / 191 (Low) |
 | What it detects | Bot-like patterns in social posts: repetition, hype keywords, very short messages |
 | Why it matters | Fake engagement makes scam projects appear to have a real community |
 | Score logic | 0.4 × repetition_score + 0.4 × hype_score + 0.2 × short_post_score |
-| Status | Currently mocked — swap in real Telegram/Twitter scraper when available |
+| Status | `UNAVAILABLE` without social post data — connect Telegram/Twitter APIs via `.env` |
 | Example trigger | Telegram channel where 80% of messages are identical "100x GUARANTEED buy now" posts |
 
 ---
@@ -217,17 +217,50 @@ Each signal outputs a score from **0.0 (safe) to 1.0 (critical risk)**.
 | 0.0 – 0.29 | LOW | Token appears safe |
 | 0.3 – 0.59 | MEDIUM | Proceed with caution |
 | 0.6 – 0.79 | HIGH | Strong red flags present |
-| 0.8 – 1.0 | CRITICAL | Very likely a scam |
+| 0.8 – 1.0 | HIGH | Very likely a scam |
 
 ## Final Risk Score (0–100)
 
-The final score combines:
-- **60%** weighted average of all 18 rule-based signal scores
-- **40%** ML model probability (GradientBoostingClassifier)
+### Formula
+
+```
+final_score = (weighted_sum / 191) × 100 + 15 × ml_probability
+```
+
+| Component | Description |
+|---|---|
+| weighted_sum | Sum of (signal_score × integer_weight) across all signals |
+| 191 | Total of all integer weights (normalisation denominator) |
+| 15 | Lambda — scaling factor for ML probability contribution |
+| ml_probability | GradientBoosting P(scam), range 0.0–1.0 |
+
+### Example Calculation
+
+| Value | Figure |
+|---|---|
+| Weighted sum | 110 |
+| Total weight | 191 |
+| ML probability | 0.7 |
+| Lambda | 15 |
+| Rule part | (110 / 191) × 100 = 57.6 |
+| ML part | 15 × 0.7 = 10.5 |
+| **Final score** | **57.6 + 10.5 = 68 → MEDIUM** |
+
+### Risk Bands
 
 | Final Score | Risk Level | Recommendation |
 |---|---|---|
-| 0–29 | LOW | Safe to consider |
-| 30–59 | MEDIUM | Proceed with caution |
-| 60–79 | HIGH | Avoid unless verified |
-| 80–100 | CRITICAL | Do not buy |
+| 0–39 | LOW | Safe to consider |
+| 40–69 | MEDIUM | Proceed with caution |
+| 70–100 | HIGH | Avoid — high rug pull risk |
+
+### Real-Time Update Formula
+
+When post-launch signals arrive, scores are updated using:
+
+```
+New Score = α × Old Score + (1 − α) × New Signals Score
+```
+
+- α = 0.7 (default)
+- Ensures stability (no sudden jumps) while allowing real-time adaptability

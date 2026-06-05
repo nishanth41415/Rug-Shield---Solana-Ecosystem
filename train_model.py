@@ -1,5 +1,5 @@
 """
-train_model.py — Train a GradientBoostingClassifier on all 18 signal scores.
+train_model.py -- Train a GradientBoostingClassifier on all 18 signal scores.
 
 Reads:  data/labeled_tokens.csv   (produced by scrape_dataset.py)
 Saves:  model/scorer.pkl          (the trained model)
@@ -13,6 +13,12 @@ import json
 import pickle
 import sys
 from pathlib import Path
+
+# Force UTF-8 output on Windows (avoids cp1252 UnicodeEncodeError)
+try:
+    sys.stdout.reconfigure(encoding='utf-8')
+except Exception:
+    pass
 
 import numpy as np
 import pandas as pd
@@ -35,7 +41,8 @@ IMPORTANCE_PATH = MODEL_DIR / "feature_importance.json"
 
 MODEL_DIR.mkdir(exist_ok=True)
 
-# 18 feature columns (signal scores)
+# 17 real feature columns (matching generate_dataset.py COLUMNS exactly)
+# Note: S07 was never built per project spec -- kept as a zero placeholder
 FEATURES = [
     "s01_mint_authority",
     "s02_freeze_authority",
@@ -56,10 +63,8 @@ FEATURES = [
     "s18_fake_engagement",
 ]
 
-# Note: s07 is intentionally skipped per the project spec (no Signal 07)
-# We have 17 columns above but label them as "18 signals" because
-# s08 follows s06 directly (s07 was never built)
-# Add a dummy s07 column so downstream code always sees 18 features
+# 18-element feature vector fed to the ML model
+# S07 is a zero placeholder (intentionally skipped per project spec)
 FEATURES_WITH_S07 = [
     "s01_mint_authority",
     "s02_freeze_authority",
@@ -67,7 +72,7 @@ FEATURES_WITH_S07 = [
     "s04_metadata_mutable",
     "s05_lp_lock",
     "s06_deployer_lp",
-    "s07_placeholder",      # always 0.0 — signal 07 was not built
+    "s07_placeholder",       # always 0.0 -- Signal 07 was never built
     "s08_top10_holders",
     "s09_whale_dominance",
     "s10_sybil_clusters",
@@ -97,7 +102,7 @@ def load_data() -> tuple:
     print(f"  Scam tokens : {(df['label'] == 1).sum()}")
     print(f"  Safe tokens : {(df['label'] == 0).sum()}")
 
-    # Add placeholder s07 column (always 0)
+    # S07 was never built -- add a zero-column so FEATURES_WITH_S07 aligns
     df["s07_placeholder"] = 0.0
 
     X = df[FEATURES_WITH_S07].fillna(0.0)
@@ -114,8 +119,8 @@ def train(X_train, y_train) -> GradientBoostingClassifier:
     print("\nTraining GradientBoostingClassifier...")
     model = GradientBoostingClassifier(
         n_estimators=200,       # number of trees
-        learning_rate=0.05,     # shrinkage — lower = more robust
-        max_depth=4,            # tree depth — controls overfitting
+        learning_rate=0.05,     # shrinkage -- lower = more robust
+        max_depth=4,            # tree depth -- controls overfitting
         min_samples_split=10,
         min_samples_leaf=5,
         subsample=0.8,          # stochastic gradient boosting
@@ -150,19 +155,19 @@ def evaluate(model, X_test, y_test) -> dict:
 
     cm = confusion_matrix(y_test, y_pred)
     print(f"\n  Confusion Matrix:")
-    print(f"    True Negatives  (safe   → safe)  : {cm[0][0]}")
-    print(f"    False Positives (safe   → scam)  : {cm[0][1]}")
-    print(f"    False Negatives (scam   → safe)  : {cm[1][0]}")
-    print(f"    True Positives  (scam   → scam)  : {cm[1][1]}")
+    print(f"    True Negatives  (safe -> safe)  : {cm[0][0]}")
+    print(f"    False Positives (safe -> scam)  : {cm[0][1]}")
+    print(f"    False Negatives (scam -> safe)  : {cm[1][0]}")
+    print(f"    True Positives  (scam -> scam)  : {cm[1][1]}")
 
     print("\n  Full Classification Report:")
     print(classification_report(y_test, y_pred,
                                  target_names=["safe", "scam"]))
 
     if accuracy >= 0.80:
-        print("  ✅ Accuracy is above 80% — model meets the requirement!")
+        print("  [OK] Accuracy is above 80% - model meets the requirement!")
     else:
-        print("  ⚠️  Accuracy is below 80% — consider retraining or collecting more data.")
+        print("  [WARN] Accuracy is below 80% - consider retraining or collecting more data.")
 
     return {
         "accuracy":  accuracy,
@@ -189,7 +194,8 @@ def save_feature_importance(model) -> None:
 
     print("\n  Top 5 most important signals:")
     for i, (feat, imp) in enumerate(list(importance.items())[:5], 1):
-        bar = "█" * int(imp * 100)
+        filled = int(imp * 100)
+        bar = "█" * filled
         print(f"    {i}. {feat:<25} {imp:.4f}  {bar}")
 
 
@@ -219,16 +225,16 @@ def main():
     # Save model
     with open(MODEL_PATH, "wb") as f:
         pickle.dump(model, f)
-    print(f"\n  Model saved → {MODEL_PATH}")
+    print(f"\n  Model saved -> {MODEL_PATH}")
 
     # Save metrics
     with open(METRICS_PATH, "w") as f:
         json.dump(metrics, f, indent=2)
-    print(f"  Metrics saved → {METRICS_PATH}")
+    print(f"  Metrics saved -> {METRICS_PATH}")
 
     # Save feature importance
     save_feature_importance(model)
-    print(f"  Feature importance saved → {IMPORTANCE_PATH}")
+    print(f"  Feature importance saved -> {IMPORTANCE_PATH}")
 
     print(f"\nNext step: python scorer.py <any_token_address>")
 

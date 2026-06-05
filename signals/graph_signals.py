@@ -1,72 +1,73 @@
 """
-graph_signals.py — Signals S10–S13 built on top of P1's graph_analyzer output.
-
-P1's calculate_graph_risk() returns this dict:
-{
-    "deployerWallet":  str,   # wallet address
-    "walletAgeDays":   int,   # how old the wallet is in days
-    "deployerFlagged": bool,  # True if wallet is in the confirmed rug DB
-    "sybilClusters":   int,   # number of sybil clusters detected
-    "hopDistance":     int,   # hops to nearest known rugger (0 = not found)
-}
-
-We import calculate_graph_risk and pass the deployer wallet address.
-If P1's code or the DB is unavailable we fall back to a deterministic mock
-so the rest of the pipeline never crashes.
+signals/graph_signals.py — S10 through S13 (P1 graph analyzer signals).
 """
 
-import hashlib
+import importlib.util
 import sys
-from datetime import datetime, timezone
 from pathlib import Path
+from datetime import datetime, timezone
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from config import score_to_risk
+from signals.utils import NEUTRAL_SCORE, mark_non_evidence, set_data_source
+
+_graph_cache: dict[str, dict] = {}
+_calculate_graph_risk_fn = None
 
 
-# ------------------------------------------------------------------ #
-#  P1 integration — safe import with mock fallback                    #
-# ------------------------------------------------------------------ #
+def _load_calculate_graph_risk():
+    """Load calculate_graph_risk without package/dir name clash."""
+    global _calculate_graph_risk_fn
+    if _calculate_graph_risk_fn is not None:
+        return _calculate_graph_risk_fn
+    ga_path = Path(__file__).parent.parent / "graph_analyzer" / "graph_analyzer.py"
+    spec = importlib.util.spec_from_file_location("ga_impl", ga_path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    _calculate_graph_risk_fn = mod.calculate_graph_risk
+    return _calculate_graph_risk_fn
+
 
 def _get_graph_data(deployer_wallet: str) -> dict:
-    """
-    Try to call P1's calculate_graph_risk().
-    Falls back to deterministic mock if P1's code / DB is not reachable.
-    """
-    try:
-        # P1's file must be in graph_analyzer/ inside the project root
-        sys.path.insert(0, str(Path(__file__).parent.parent / "graph_analyzer"))
-        from graph_analyzer import calculate_graph_risk
-        return calculate_graph_risk(deployer_wallet)
-    except Exception:
-        return _mock_graph_data(deployer_wallet)
+    if deployer_wallet in _graph_cache:
+        return _graph_cache[deployer_wallet]
 
-
-def _mock_graph_data(deployer_wallet: str) -> dict:
-    """Deterministic mock derived from the wallet address hash."""
-    seed = int(hashlib.sha256(deployer_wallet.encode()).hexdigest(), 16)
-    return {
+    default = {
         "deployerWallet":  deployer_wallet,
-        "walletAgeDays":   seed % 120,          # 0–119 days
-        "deployerFlagged": bool(seed % 7 == 0), # ~14 % flagged
-        "sybilClusters":   seed % 5,            # 0–4 clusters
-        "hopDistance":     seed % 4,            # 0–3 hops (0 = none found)
+        "walletAgeDays":   0,
+        "deployerFlagged": False,
+        "sybilClusters":   0,
+        "hopDistance":     0,
+        "_meta": {
+            "wallet_age_source": "unavailable",
+            "rug_db_source":     "unavailable",
+            "graph_source":      "unavailable",
+        },
     }
 
+    try:
+        fn = _load_calculate_graph_risk()
+        result = fn(deployer_wallet)
+        _graph_cache[deployer_wallet] = result
+        return result
+    except Exception as e:
+        print(f"  [WARN] graph_analyzer unavailable ({e}) — graph signals unavailable")
+        _graph_cache[deployer_wallet] = default
+        return default
 
-# ------------------------------------------------------------------ #
-#  Shared builder                                                     #
-# ------------------------------------------------------------------ #
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
-def _build(signal_id, token_address, score, check, result, explanation) -> dict:
+def _build(signal_id: str, token_address: str, score: float,
+           check: str, result, explanation: str) -> dict:
+    score = round(float(score), 4)
     return {
         "signal_id":     signal_id,
         "token_address": token_address,
-        "score":         round(float(score), 4),
+        "score":         score,
         "risk_level":    score_to_risk(score),
         "details": {
             "check":       check,
@@ -77,114 +78,112 @@ def _build(signal_id, token_address, score, check, result, explanation) -> dict:
     }
 
 
-# ------------------------------------------------------------------ #
-#  S10 — Sybil Wallet Clustering                                      #
-# ------------------------------------------------------------------ #
+def _meta(data: dict) -> dict:
+    return data.get("_meta", {})
+
 
 def signal_10_sybil_clustering(token_address: str, deployer_wallet: str) -> dict:
-    """
-    Uses P1 field: sybilClusters (int)
-    More clusters = higher risk that deployer controls many fake wallets
-    to simulate organic activity.
-
-    Score:
-        0 clusters  → 0.0  (no sybil activity)
-        1 cluster   → 0.4
-        2 clusters  → 0.65
-        3 clusters  → 0.8
-        4+ clusters → 0.95
-    """
     data = _get_graph_data(deployer_wallet)
-    clusters = data.get("sybilClusters", 0)
+    meta = _meta(data)
 
-    score_map = {0: 0.0, 1: 0.4, 2: 0.65, 3: 0.8}
-    score = score_map.get(clusters, 0.95)  # 4+ → 0.95
+    if meta.get("graph_source") != "real":
+        return mark_non_evidence(_build(
+            "S10", token_address, NEUTRAL_SCORE,
+            check="sybil_clusters",
+            result={"sybil_clusters": None},
+            explanation="Wallet graph data unavailable — sybil cluster check skipped.",
+        ), "unavailable")
+
+    clusters = data.get("sybilClusters", 0)
+    score_map = {0: 0.00, 1: 0.40, 2: 0.65, 3: 0.80}
+    score = score_map.get(clusters, 0.95)
 
     explanation = (
         f"{clusters} sybil cluster(s) detected around deployer wallet. "
         + (
             "No sybil activity — wallets appear independent."
             if clusters == 0 else
-            "Multiple linked wallets detected — likely coordinated fake activity."
+            "Multiple linked wallet clusters detected — likely coordinated fake activity."
             if clusters >= 2 else
             "One sybil cluster detected — possible fake wallet coordination."
         )
     )
 
-    return _build(
+    return set_data_source(_build(
         "S10", token_address, score,
         check="sybil_clusters",
-        result={"deployer_wallet": deployer_wallet, "sybil_clusters": clusters},
+        result={"deployer_wallet": deployer_wallet[:8] + "...",
+                "sybil_clusters": clusters},
         explanation=explanation,
-    )
+    ), "real")
 
-
-# ------------------------------------------------------------------ #
-#  S11 — Previous Rug Pull History                                    #
-# ------------------------------------------------------------------ #
 
 def signal_11_rug_history(token_address: str, deployer_wallet: str) -> dict:
-    """
-    Uses P1 fields: deployerFlagged (bool) + hopDistance (int)
-
-    If deployerFlagged=True  → deployer is a confirmed rugger → CRITICAL (0.95)
-    If hopDistance > 0       → connected to a known rugger within N hops
-        hop 1 → 0.75  (direct connection)
-        hop 2 → 0.55
-        hop 3 → 0.35
-    No connection            → 0.05
-    """
     data = _get_graph_data(deployer_wallet)
+    meta = _meta(data)
     flagged = data.get("deployerFlagged", False)
     hop = data.get("hopDistance", 0)
+
+    if meta.get("rug_db_source") != "real" and meta.get("graph_source") != "real":
+        return mark_non_evidence(_build(
+            "S11", token_address, NEUTRAL_SCORE,
+            check="rug_pull_history",
+            result={"deployer_flagged": None, "hop_distance": None},
+            explanation="Rug history database unavailable — check skipped.",
+        ), "unavailable")
 
     if flagged:
         score = 0.95
         explanation = (
             f"Deployer wallet ({deployer_wallet[:8]}...) is in the confirmed rug pull "
-            "database. This wallet has rugged before."
+            "database. This wallet has rugged before — DO NOT BUY."
         )
         result = {"deployer_flagged": True, "hop_distance": 0}
-    elif hop > 0:
-        score = max(0.75 - (hop - 1) * 0.2, 0.35)
+        src = "real"
+    elif hop > 0 and meta.get("graph_source") == "real":
+        score = max(0.75 - (hop - 1) * 0.20, 0.35)
         explanation = (
             f"Deployer is {hop} hop(s) away from a known rugger in the wallet graph. "
             "Indirect association with confirmed bad actors."
         )
         result = {"deployer_flagged": False, "hop_distance": hop}
-    else:
+        src = "real"
+    elif meta.get("rug_db_source") == "real":
         score = 0.05
         explanation = (
-            "Deployer wallet has no history of rug pulls and is not connected "
-            "to any known ruggers in the graph."
+            "Deployer wallet has no rug pull history and is not connected "
+            "to any known ruggers in the wallet graph."
         )
         result = {"deployer_flagged": False, "hop_distance": 0}
+        src = "real"
+    else:
+        return mark_non_evidence(_build(
+            "S11", token_address, NEUTRAL_SCORE,
+            check="rug_pull_history",
+            result={"deployer_flagged": False, "hop_distance": 0},
+            explanation="Partial rug-history data only — no evidence available.",
+        ), "unavailable")
 
-    return _build(
+    return set_data_source(_build(
         "S11", token_address, score,
         check="rug_pull_history",
         result=result,
         explanation=explanation,
-    )
+    ), src)
 
-
-# ------------------------------------------------------------------ #
-#  S12 — Wallet Age Under 30 Days                                     #
-# ------------------------------------------------------------------ #
 
 def signal_12_wallet_age(token_address: str, deployer_wallet: str) -> dict:
-    """
-    Uses P1 field: walletAgeDays (int)
-
-    New wallets are created specifically for rug pulls to avoid history.
-    Score:
-        < 7 days  → 0.95 (brand new — almost certainly disposable)
-        < 30 days → 0.75 (suspicious)
-        < 90 days → 0.4  (relatively new)
-        90+ days  → 0.05 (established wallet)
-    """
     data = _get_graph_data(deployer_wallet)
+    meta = _meta(data)
     age_days = data.get("walletAgeDays", 0)
+
+    if meta.get("wallet_age_source") != "real":
+        return mark_non_evidence(_build(
+            "S12", token_address, NEUTRAL_SCORE,
+            check="wallet_age_days",
+            result={"wallet_age_days": None},
+            explanation="Deployer wallet age unavailable — cannot assess wallet maturity.",
+        ), "unavailable")
 
     if age_days < 7:
         score = 0.95
@@ -193,7 +192,7 @@ def signal_12_wallet_age(token_address: str, deployer_wallet: str) -> dict:
         score = 0.75
         label = "very new (< 30 days)"
     elif age_days < 90:
-        score = 0.4
+        score = 0.40
         label = "relatively new (< 90 days)"
     else:
         score = 0.05
@@ -204,82 +203,65 @@ def signal_12_wallet_age(token_address: str, deployer_wallet: str) -> dict:
         + (
             "Extremely new wallets are almost always disposable rug accounts."
             if age_days < 7 else
-            "Wallets under 30 days old are a strong rug pull indicator."
+            "Wallets under 30 days are a strong rug pull indicator."
             if age_days < 30 else
-            "Wallet is relatively new but not an immediate red flag."
+            "Relatively new wallet — not an immediate red flag alone."
             if age_days < 90 else
-            "Wallet has an established history — lower risk."
+            "Established wallet with a real history — lower risk."
         )
     )
 
-    return _build(
+    return set_data_source(_build(
         "S12", token_address, score,
         check="wallet_age_days",
-        result={"deployer_wallet": deployer_wallet, "wallet_age_days": age_days},
+        result={"deployer_wallet": deployer_wallet[:8] + "...",
+                "wallet_age_days": age_days},
         explanation=explanation,
-    )
+    ), "real")
 
-
-# ------------------------------------------------------------------ #
-#  S13 — Suspicious Transaction Patterns                              #
-# ------------------------------------------------------------------ #
 
 def signal_13_suspicious_tx_patterns(token_address: str, deployer_wallet: str) -> dict:
-    """
-    Uses P1 fields: sybilClusters + hopDistance combined.
-    Detects circular fund flows and layering by looking at how many
-    cluster connections exist AND how close a known bad actor is.
-
-    Score = weighted combo:
-        0.5 × sybil_score  +  0.5 × proximity_score
-    """
     data = _get_graph_data(deployer_wallet)
+    meta = _meta(data)
+
+    if meta.get("graph_source") != "real":
+        return mark_non_evidence(_build(
+            "S13", token_address, NEUTRAL_SCORE,
+            check="suspicious_tx_patterns",
+            result={"sybil_clusters": None, "hop_distance": None},
+            explanation="Transaction pattern graph unavailable — check skipped.",
+        ), "unavailable")
+
     clusters = data.get("sybilClusters", 0)
     hop = data.get("hopDistance", 0)
 
-    # Sybil component
-    sybil_score = min(clusters * 0.2, 0.8)
-
-    # Proximity component — closer to a rugger = more suspicious tx patterns
-    if hop == 0:
-        proximity_score = 0.0
-    elif hop == 1:
-        proximity_score = 0.8
-    elif hop == 2:
-        proximity_score = 0.5
-    else:
-        proximity_score = 0.3
-
+    sybil_score = min(clusters * 0.20, 0.80)
+    proximity_map = {0: 0.00, 1: 0.80, 2: 0.50}
+    proximity_score = proximity_map.get(hop, 0.30)
     score = round(0.5 * sybil_score + 0.5 * proximity_score, 4)
 
     flags = []
     if clusters > 0:
-        flags.append(f"{clusters} sybil cluster(s) suggest circular fund flows")
+        flags.append(f"{clusters} sybil cluster(s) suggesting circular fund flows")
     if hop > 0:
-        flags.append(f"wallet graph connects to known rugger in {hop} hop(s)")
+        flags.append(f"wallet graph links to known rugger in {hop} hop(s)")
     if not flags:
         flags.append("no suspicious patterns detected")
 
-    explanation = (
-        f"Suspicious transaction pattern analysis: {'; '.join(flags)}."
-    )
+    explanation = f"Suspicious transaction pattern analysis: {'; '.join(flags)}."
 
-    return _build(
+    return set_data_source(_build(
         "S13", token_address, score,
         check="suspicious_tx_patterns",
         result={
-            "sybil_clusters":   clusters,
-            "hop_distance":     hop,
-            "sybil_score":      round(sybil_score, 4),
-            "proximity_score":  round(proximity_score, 4),
+            "sybil_clusters":  clusters,
+            "hop_distance":    hop,
+            "sybil_score":     round(sybil_score, 4),
+            "proximity_score": round(proximity_score, 4),
         },
         explanation=explanation,
-    )
+    ), "real")
 
-
-# ------------------------------------------------------------------ #
-#  Convenience: run all graph signals                                 #
-# ------------------------------------------------------------------ #
 
 GRAPH_SIGNALS = [
     signal_10_sybil_clustering,
@@ -290,5 +272,10 @@ GRAPH_SIGNALS = [
 
 
 def run_graph_signals(token_address: str, deployer_wallet: str) -> list[dict]:
-    """Run S10–S13 for a given token and its deployer wallet."""
-    return [fn(token_address, deployer_wallet) for fn in GRAPH_SIGNALS]
+    results = []
+    for fn in GRAPH_SIGNALS:
+        try:
+            results.append(fn(token_address, deployer_wallet))
+        except Exception as e:
+            print(f"  [WARN] {fn.__name__} raised an unexpected error: {e}")
+    return results

@@ -1,6 +1,23 @@
-venv/
+# Environment variables
+.env
+*.env
+
+# Python
 __pycache__/
-output/
+*.pyc
 venv/
-__pycache__/
+.venv/
+
+# Output folders
 output/
+
+# Model artifacts
+model/*.pkl
+model/*.joblib
+model/*.sav
+
+# Docker
+.env.docker
+
+# Logs
+*.log
