@@ -23,7 +23,7 @@ def save_dataset():
     }
     with open("test_dataset.json", "w") as f:
         json.dump(dataset, f, indent=2)
-    print(f"✅ Dataset saved: {len(KNOWN_SCAM_TOKENS)} scam, {len(KNOWN_SAFE_TOKENS)} safe")
+    print(f"Dataset saved: {len(KNOWN_SCAM_TOKENS)} scam, {len(KNOWN_SAFE_TOKENS)} safe")
 
 if __name__ == "__main__":
     save_dataset()

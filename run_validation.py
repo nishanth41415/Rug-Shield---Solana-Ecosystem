@@ -90,7 +90,7 @@ def validate():
             "false_positive_rate": false_positive_rate
         }, f, indent=2)
     
-    print("\n✅ Results saved to validation_results.json")
+    print("\nResults saved to validation_results.json")
 
 if __name__ == "__main__":
     validate()

@@ -14,7 +14,7 @@ def push_mint_event(mint_address, program_id):
     }
     # Push to Redis Stream
     r.xadd("solana:mint:events", event)
-    print(f"✅ Pushed mint event: {mint_address}")
+    print(f"Pushed mint event: {mint_address}")
 
 def read_mint_events():
     """Read all mint events from Redis Streams"""
@@ -22,7 +22,7 @@ def read_mint_events():
     if events:
         for stream, messages in events:
             for msg_id, msg_data in messages:
-                print(f"📨 Event: {msg_data}")
+                print(f"Event: {msg_data}")
     else:
         print("No events in queue yet")
 
