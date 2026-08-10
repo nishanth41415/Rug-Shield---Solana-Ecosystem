@@ -21,11 +21,11 @@ def push_to_redis(mint_address, program_id):
         "programId": program_id
     }
     r.xadd("solana:mint:events", event)
-    print(f"✅ New mint detected and queued: {mint_address}")
+    print(f"New mint detected and queued: {mint_address}")
 
 def listen_for_mints():
     """Listen for new token mint events on Solana devnet"""
-    print("🔍 Listening for new Solana token mints on devnet...")
+    print("Listening for new Solana token mints on devnet...")
     print("Press Ctrl+C to stop\n")
     
     last_slot = solana_client.get_slot().value
@@ -62,10 +62,10 @@ def listen_for_mints():
             time.sleep(2)
             
         except KeyboardInterrupt:
-            print("\n⛔ Listener stopped")
+            print("\nListener stopped")
             break
         except Exception as e:
-            print(f"⚠️ Error: {e}")
+            print(f"Error: {e}")
             time.sleep(5)
 
 if __name__ == "__main__":

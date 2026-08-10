@@ -1,14 +1,18 @@
 import networkx as nx
 import psycopg2
+import os
 from deployer_fetcher import get_wallet_transactions, get_wallet_age_days
 
-# Connect to PostgreSQL
-conn = psycopg2.connect(
-    host="localhost",
-    database="rugshield",
-    user="rugshield",
-    password="rugshield123"
-)
+def get_database_connection():
+    """Open PostgreSQL only when a database-backed check is requested."""
+    return psycopg2.connect(
+        host=os.environ.get("POSTGRES_HOST", "localhost"),
+        port=int(os.environ.get("POSTGRES_PORT", "5432")),
+        database=os.environ.get("POSTGRES_DB", "rugshield"),
+        user=os.environ.get("POSTGRES_USER", "rugshield"),
+        password=os.environ.get("POSTGRES_PASSWORD", "rugshield"),
+        connect_timeout=2,
+    )
 
 def build_wallet_graph(root_wallet, max_hops=3):
     """Build a graph by tracing wallet connections up to max_hops"""
@@ -23,7 +27,7 @@ def build_wallet_graph(root_wallet, max_hops=3):
             continue
         
         visited.add(wallet)
-        print(f"🔍 Scanning wallet: {wallet} (hop {hop})")
+        print(f"Scanning wallet: {wallet} (hop {hop})")
         
         # Get transactions for this wallet
         txs = get_wallet_transactions(wallet, limit=50)
@@ -42,14 +46,17 @@ def build_wallet_graph(root_wallet, max_hops=3):
 
 def check_rug_database(wallet_address):
     """Check if wallet is in confirmed rug pull database"""
-    cursor = conn.cursor()
-    cursor.execute(
-        "SELECT COUNT(*) FROM confirmed_rugs WHERE deployer_wallet = %s",
-        (wallet_address,)
-    )
-    count = cursor.fetchone()[0]
-    cursor.close()
-    return count > 0
+    try:
+        with get_database_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    "SELECT COUNT(*) FROM confirmed_rugs WHERE deployer_wallet = %s",
+                    (wallet_address,),
+                )
+                return cursor.fetchone()[0] > 0
+    except psycopg2.OperationalError:
+        # Offline analysis remains usable when the optional local database is down.
+        return False
 
 def calculate_graph_risk(deployer_wallet):
     """Calculate graph-based risk score for a deployer wallet"""
@@ -90,13 +97,13 @@ if __name__ == "__main__":
     
     risk = calculate_graph_risk(test_wallet)
     
-    print("\n📊 Graph Risk Analysis:")
+    print("\nGraph Risk Analysis:")
     print(f"  Wallet Age: {risk['walletAgeDays']} days")
     print(f"  Deployer Flagged: {risk['deployerFlagged']}")
     print(f"  Sybil Clusters: {risk['sybilClusters']}")
     print(f"  Hop Distance to Known Rugger: {risk['hopDistance']}")
     
     if risk['walletAgeDays'] < 30:
-        print("\n🚩 HIGH RISK: Wallet age < 30 days")
+        print("\nHIGH RISK: Wallet age < 30 days")
     if risk['deployerFlagged']:
-        print("🚩 HIGH RISK: Deployer previously rugged")
+        print("HIGH RISK: Deployer previously rugged")

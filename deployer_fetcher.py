@@ -19,10 +19,10 @@ def get_wallet_transactions(wallet_address, limit=100):
         if "result" in result:
             return result["result"]
         else:
-            print(f"⚠️ No transactions found for {wallet_address}")
+            print(f"No transactions found for {wallet_address}")
             return []
     except Exception as e:
-        print(f"❌ Error fetching wallet: {e}")
+        print(f"Error fetching wallet: {e}")
         return []
 
 def get_wallet_age_days(wallet_address):
@@ -48,10 +48,10 @@ if __name__ == "__main__":
     print(f"Testing wallet fetcher on: {test_wallet}\n")
     
     txs = get_wallet_transactions(test_wallet, limit=5)
-    print(f"✅ Found {len(txs)} transactions")
+    print(f"Found {len(txs)} transactions")
     
     age = get_wallet_age_days(test_wallet)
-    print(f"📅 Wallet age: {age} days")
+    print(f"Wallet age: {age} days")
     
     if age < 30:
-        print("🚩 WARNING: Wallet is less than 30 days old - HIGH RISK")
+        print("WARNING: Wallet is less than 30 days old - HIGH RISK")
